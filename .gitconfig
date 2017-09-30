@@ -1,0 +1,9 @@
+[user]
+	email = richardo2016@gmail.com
+	name = Ray Chan
+[core]
+	editor = vim
+[color]
+	ui = auto
+[push]
+	default = simple
