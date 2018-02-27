@@ -5,6 +5,9 @@ export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
 export ELECTRON_MIRROR=https://npm.taobao.org/mirrors/electron/
 export PHANTOMJS_CDNURL=https://npm.taobao.org/mirrors/phantomjs/
 export SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/
+export PHANTOMJS_CDNURL=http://npm.taobao.org/mirrors/phantomjs/
+export CHROMEDRIVER_CDNURL=http://npm.taobao.org/mirrors/chromedriver/
+export SELENIUM_CDNURL=http://npm.taobao.org/mirrorss/selenium/
 
 ## nodejs's env
 export NVM_DIR="$HOME/.nvm"
