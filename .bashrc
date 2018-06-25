@@ -55,3 +55,8 @@ export PATH=$PATH:$GRADLE_HOME/bin
 # Editor aliases
 alias vsc="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+
+# For OPENSSL in mac osx
+export OPENSSL_ROOT_DIR=$(brew --prefix openssl)
+export OPENSSL_LIB_DIR=$(brew --prefix openssl)"/lib"
+export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
