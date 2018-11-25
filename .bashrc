@@ -53,10 +53,25 @@ export GRADLE_HOME=~/env/gradle-4.0.1;
 export PATH=$PATH:$GRADLE_HOME/bin
 
 # Editor aliases
-alias vsc="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
-alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+VSCPATH="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
+if [ -f "$HOME/AppData/Local/Programs/Microsoft VS Code/Code.exe" ]; then
+  VSCPATH="$HOME/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe"
+fi
+SUBLPATH="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
 
-# For OPENSSL in mac osx
-export OPENSSL_ROOT_DIR=$(brew --prefix openssl)
-export OPENSSL_LIB_DIR=$(brew --prefix openssl)"/lib"
-export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
+alias vsc=$VSCPATH
+alias subl=$SUBLPATH
+
+# declare -a sublPaths=("/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl")
+# for ((i = 0; i < ${#sublPaths[@]}; i++)); do
+#   if [ -f "${sublPaths[$i]}" ]; then
+#     alias vsc="${sublPaths[$i]}"
+#   fi
+# done
+
+if [ -f "brew" ]; then
+  # For OPENSSL in mac osx
+  export OPENSSL_ROOT_DIR=$(brew --prefix openssl)
+  export OPENSSL_LIB_DIR=$(brew --prefix openssl)"/lib"
+  export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
+fi

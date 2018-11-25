@@ -9,3 +9,6 @@ $(addprefix $(HOME)/, $(DOTFILES)): $(HOME)/%: $(CURDIR)/%
 
 clean:
 	for file in $(DOTFILES); do rm $(HOME)/$$file; done
+
+install:
+	cp .bashrc ~/.bashrc_richard && echo 'source ~/.bashrc_richard' >> ~/.bashrc
