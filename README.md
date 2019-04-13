@@ -9,5 +9,5 @@
 
 thx to my friend [Albert Zang]'s [dotfiles] :) he advices me to store my idiomatic config with git.
 
-[Albert Zang]:https://github.com/YansongZang
-[dotfiles]:https://github.com/YansongZang/dotfiles
+[Albert Zang]:https://github.com/albertzang
+[dotfiles]:https://github.com/albertzang/dotfiles
