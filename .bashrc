@@ -12,8 +12,12 @@ export SELENIUM_CDNURL=http://npm.taobao.org/mirrorss/selenium/
 ## nodejs's env
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-export NODE_PATH="$NODE_PATH:$HOME/.nvm/versions/node/$(nvm version)/lib"
-export PATH="$PATH:$HOME/.nvm/versions/node/$(node --version)/bin"
+if [ -e "nvm" ]; then
+	# nvm use 8
+	export NODE_PATH="$HOME/.nvm/versions/node/$(nvm version)/lib"
+	export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm --version)/bin"
+	export PATH="$PATH:$NODE_BIN_PATH"
+fi
 
 ## nodejs setup function
 install_nvm () {
