@@ -6,6 +6,9 @@ get_envs() {
 			;;
 	esac
 }
+
+get_envs;
+
 # nodejs
 ## mirror in china
 export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
@@ -77,6 +80,7 @@ case ${HOST_OS} in
     ;;
   Darwin)
     VSCPATH="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
+    alias vsc=$VSCPATH
     SUBLPATH="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
     alias subl=$SUBLPATH
     ;;
