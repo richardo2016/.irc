@@ -1,3 +1,11 @@
+get_envs() {
+	HOST_OS=`uname`
+
+	case ${HOST_OS} in
+		MINGW*|CYGWIN*) HOST_OS="Windows"
+			;;
+	esac
+}
 # nodejs
 ## mirror in china
 export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
@@ -22,6 +30,11 @@ fi
 ## nodejs setup function
 install_nvm () {
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
+}
+
+enable_http_proxy_2_charles () {
+  export http_proxy=http://127.0.0.1:8888;
+  export https_proxy=http://127.0.0.1:8888;
 }
 
 ## alias for nodjes
@@ -57,21 +70,17 @@ export GRADLE_HOME=~/env/gradle-4.0.1;
 export PATH=$PATH:$GRADLE_HOME/bin
 
 # Editor aliases
-VSCPATH="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
-if [ -f "$HOME/AppData/Local/Programs/Microsoft VS Code/Code.exe" ]; then
-  VSCPATH="$HOME/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe"
-fi
-SUBLPATH="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
-
-alias vsc=$VSCPATH
-alias subl=$SUBLPATH
-
-# declare -a sublPaths=("/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl")
-# for ((i = 0; i < ${#sublPaths[@]}; i++)); do
-#   if [ -f "${sublPaths[$i]}" ]; then
-#     alias vsc="${sublPaths[$i]}"
-#   fi
-# done
+case ${HOST_OS} in
+  Windows)
+    VSCPATH="$HOME/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe"
+    alias vsc=$VSCPATH
+    ;;
+  Darwin)
+    VSCPATH="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
+    SUBLPATH="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+    alias subl=$SUBLPATH
+    ;;
+esac
 
 if [ -f "brew" ]; then
   # For OPENSSL in mac osx

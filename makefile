@@ -11,4 +11,7 @@ clean:
 	for file in $(DOTFILES); do rm $(HOME)/$$file; done
 
 install:
-	cp .bashrc ~/.bashrc_richard && echo 'source ~/.bashrc_richard' >> ~/.bashrc
+	rm ~/.bashrc && cp ./.bashrc ~/;
+	rm ~/.bash_profile && cp ./.bash_profile ~/;
+replace:
+	cp .bashrc ~/.bashrc_richard && echo '\nsource ~/.bashrc_richard' > ~/.bashrc
