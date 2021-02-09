@@ -59,6 +59,19 @@ parse_git_branch() {
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(git@\1)/'
 }
 
+# switch back to bash in some host
+case ${HOST_OS} in
+  Darwin)
+    # in Darwin > 10.15, zsh is default shell but I like bash.
+    CUR_SH=`echo $0`;
+    if [ $CUR_SH != "-bash" ]; then
+      echo "current shell is is '$CUR_SH', now we switch back to bash";
+      chsh -s /bin/bash
+    fi
+    ;;
+esac
+
+
 if [ ! $IS_WIN_BASH ]; then
 PS1="\[\e[31;1m\]😃  \u \$(parse_git_branch) \[\e[32m\]\w\[\e[34;1m\] \[\e[35;1m\] \[\e[37;1m\]"
 else
