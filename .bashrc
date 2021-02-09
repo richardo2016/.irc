@@ -64,7 +64,7 @@ case ${HOST_OS} in
   Darwin)
     # in Darwin > 10.15, zsh is default shell but I like bash.
     CUR_SH=`echo $0`;
-    if [ $CUR_SH != "-bash" ]; then
+    if [[ ! $CUR_SH =~ "bash" ]]; then
       echo "current shell is is '$CUR_SH', now we switch back to bash";
       chsh -s /bin/bash
     fi
