@@ -1,3 +1,28 @@
+# functions start
+dump_git() {
+  git config --global user.name "richardo2016"
+  git config --global user.email "richardo2016@gmail.com"
+  
+  git config --global credential.helper "store"
+
+  echo "dump_git finished";
+}
+
+dump_gitproxy() {
+  git config --global http.https://github.com.proxy "sock5://127.0.0.1:7890"
+  git config --global https.https://github.com.proxy "sock5://127.0.0.1:7890"
+  
+  echo "dump_gitproxy finished";
+}
+
+dump_rc() {
+  dump_git
+  dump_gitproxy
+  
+  echo "dump_rc finished";
+}
+# functions end
+
 get_envs() {
 	HOST_OS=`uname`
 
