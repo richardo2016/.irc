@@ -23,6 +23,15 @@ dump_rc() {
 }
 # functions end
 
+use_brew_openssl() {
+  if [ -f "brew" ]; then
+    # For OPENSSL in mac osx
+    export OPENSSL_ROOT_DIR=$(brew --prefix openssl)
+    export OPENSSL_LIB_DIR=$(brew --prefix openssl)"/lib"
+    export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
+  fi
+}
+
 get_envs() {
 	HOST_OS=`uname`
 
@@ -129,9 +138,3 @@ case ${HOST_OS} in
     ;;
 esac
 
-if [ -f "brew" ]; then
-  # For OPENSSL in mac osx
-  export OPENSSL_ROOT_DIR=$(brew --prefix openssl)
-  export OPENSSL_LIB_DIR=$(brew --prefix openssl)"/lib"
-  export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
-fi
