@@ -54,6 +54,7 @@ export SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/
 export PHANTOMJS_CDNURL=http://npm.taobao.org/mirrors/phantomjs/
 export CHROMEDRIVER_CDNURL=http://npm.taobao.org/mirrors/chromedriver/
 export SELENIUM_CDNURL=http://npm.taobao.org/mirrorss/selenium/
+export ENTRYCLI_CDNURL=https://cdn.npm.taobao.org/dist/sentry-cli
 
 ## nodejs's env
 export NVM_DIR="$HOME/.nvm"
