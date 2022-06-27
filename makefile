@@ -12,4 +12,5 @@ clean:
 
 install:
 	rm -f ~/.bashrc && cp ./.bashrc ~/;
+	rm -f ~/.profile && cp ./.profile ~/;
 	rm -f ~/.bash_profile && cp ./.bash_profile ~/;
