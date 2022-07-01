@@ -1,0 +1,64 @@
+get_envs() {
+	RAY_HOST_OS=`uname`
+
+	case ${RAY_HOST_OS} in
+		MINGW*|CYGWIN*) RAY_HOST_OS="Windows"
+      RAY_IS_WIN_BASH=true
+			;;
+	esac
+}
+
+get_envs;
+
+# nodejs
+## mirror in china
+export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
+export NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node/
+export ELECTRON_MIRROR=https://npm.taobao.org/mirrors/electron/
+export PHANTOMJS_CDNURL=https://npm.taobao.org/mirrors/phantomjs/
+export SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/
+export PHANTOMJS_CDNURL=http://npm.taobao.org/mirrors/phantomjs/
+export CHROMEDRIVER_CDNURL=http://npm.taobao.org/mirrors/chromedriver/
+export SELENIUM_CDNURL=http://npm.taobao.org/mirrorss/selenium/
+export ENTRYCLI_CDNURL=https://cdn.npm.taobao.org/dist/sentry-cli
+
+## nodejs's env
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+if [ -e "nvm" ]; then
+	# nvm use 8
+	export NODE_PATH="$HOME/.nvm/versions/node/$(nvm version)/lib"
+	export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm --version)/bin"
+	export PATH="$PATH:$NODE_BIN_PATH"
+fi
+
+## alias for nodjes
+alias onpm="npm --registry=https://registry.npmjs.org \
+  --userconfig=$HOME/.onpmrc"
+
+# brew's mirror
+export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
+
+# golang's env
+export PATH="/usr/local/go/bin:/usr/local/bin:$PATH"
+export GOPATH=~/WorkSpace/go
+# gopath
+export PATH="$PATH:$GOPATH/bin"
+
+# composer
+export PATH="$PATH:$HOME/.composer/vendor/bin"
+
+# GRADLE
+export GRADLE_HOME=~/env/gradle-4.0.1;
+export PATH=$PATH:$GRADLE_HOME/bin
+
+# rbenv, @see https://github.com/rbenv/rbenv
+if [ -f rbenv ]; then
+    eval "$(rbenv init - bash)"
+    export PATH=$PATH:~/.rbenv/shims
+fi
+
+## git-completion.bash
+if [ -f ~/.git-completion.bash ]; then
+    . ~/.git-completion.bash
+fi

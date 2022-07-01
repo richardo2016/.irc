@@ -11,6 +11,7 @@ clean:
 	for file in $(DOTFILES); do rm $(HOME)/$$file; done
 
 install:
-	rm -f ~/.bashrc && cp ./.bashrc ~/;
+	rm -rf ~/.bashray && cp -r ./.bashray ~/;
 	rm -f ~/.profile && cp ./.profile ~/;
+	rm -f ~/.bashrc && cp ./.bashrc ~/;
 	rm -f ~/.bash_profile && cp ./.bash_profile ~/;
