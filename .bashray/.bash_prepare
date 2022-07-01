@@ -53,7 +53,7 @@ export GRADLE_HOME=~/env/gradle-4.0.1;
 export PATH=$PATH:$GRADLE_HOME/bin
 
 # rbenv, @see https://github.com/rbenv/rbenv
-if [ -f rbenv ]; then
+if [ -e rbenv ] || [ -e /usr/local/bin/rbenv ]; then
     eval "$(rbenv init - bash)"
     export PATH=$PATH:~/.rbenv/shims
 fi
