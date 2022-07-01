@@ -51,6 +51,11 @@ proxy2charles () {
   export https_proxy=http://127.0.0.1:8888;
 }
 
+proxy2iproxy () {
+  export http_proxy=http://127.0.0.1:12888;
+  export https_proxy=http://127.0.0.1:12888;
+}
+
 proxy2none() {
   unset http_proxy;
   unset https_proxy;
@@ -74,3 +79,11 @@ rbenv_system() {
 rbenv_doctor() {
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/main/bin/rbenv-doctor | bash
 }
+# rbenv about: end
+
+# ios development :start
+iosdev_setup() {
+  sudo gem install cocoapods;
+  sudo gem install fastlane;
+}
+# ios development :end
