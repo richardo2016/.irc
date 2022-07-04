@@ -58,6 +58,15 @@ if [ -e rbenv ] || [ -e /usr/local/bin/rbenv ]; then
     export PATH=$PATH:~/.rbenv/shims
 fi
 
+## pyenv
+case ${RAY_HOST_OS} in
+  Darwin)
+    if command -v pyenv 1>/dev/null 2>&1; then
+        eval "$(pyenv init -)"
+    fi
+    ;;
+esac
+
 ## git-completion.bash
 if [ -f ~/.git-completion.bash ]; then
     . ~/.git-completion.bash
