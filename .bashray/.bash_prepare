@@ -1,10 +1,24 @@
 get_envs() {
 	RAY_HOST_OS=`uname`
+	RAY_HOST_ARCH=`uname -m`
 
 	case ${RAY_HOST_OS} in
-		MINGW*|CYGWIN*) RAY_HOST_OS="Windows"
+		MINGW*|CYGWIN*)
+			RAY_HOST_OS="Windows"
       RAY_IS_WIN_BASH=true
 			;;
+	esac
+
+	case ${RAY_HOST_ARCH} in
+		i386|i686) RAY_HOST_ARCH="x86";;
+		x86_64|amd64) RAY_HOST_ARCH="x64";;
+		armv6) RAY_HOST_ARCH="armv6";;
+		armv7|armv7s|armv7l) RAY_HOST_ARCH="arm";;
+		aarch64) RAY_HOST_ARCH="arm64";;
+		mips|mipsel) RAY_HOST_ARCH="mips";;
+		mips64) RAY_HOST_ARCH="mips64";;
+		powerpc) RAY_HOST_ARCH="ppc";;
+		ppc64) RAY_HOST_ARCH="ppc64";;
 	esac
 }
 
@@ -38,6 +52,27 @@ alias onpm="npm --registry=https://registry.npmjs.org \
 
 # brew's mirror
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
+
+if [ $RAY_HOST_OS = "Darwin" ]; then
+  if [ -f /usr/local/homebrew/bin/brew ]; then
+    alias brewx64='arch -x86_64 /usr/local/homebrew/bin/brew'
+    if [ $RAY_HOST_ARCH = "x64" ]; then
+      RAY_BREW_PREFIX=$(brewx64 --prefix);
+      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+      # If you come from bash you might have to change your $PATH.
+      # need this for x86_64 brew
+      # export PATH=$HOME/bin:/usr/local/bin:$PATH
+    fi
+  fi
+
+  if [ -f /opt/homebrew/bin/brew ]; then
+    alias brewarm64='arch -arm64 /opt/homebrew/bin/brew'
+    if [ $RAY_HOST_ARCH = "arm64" ]; then
+      RAY_BREW_PREFIX=$(brewarm64 --prefix);
+      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+    fi
+  fi
+fi
 
 # golang's env
 export PATH="/usr/local/go/bin:/usr/local/bin:$PATH"

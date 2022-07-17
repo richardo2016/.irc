@@ -7,7 +7,6 @@ parse_git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(git@\1)/'
 }
 
-# functions start
 dump_git() {
   git config --global user.name "richardo2016"
   git config --global user.email "richardo2016@gmail.com"
@@ -30,7 +29,6 @@ dump_rc() {
   
   echo "dump_rc finished";
 }
-# functions end
 
 use_brew_openssl() {
   if [ -f "brew" ]; then
@@ -87,3 +85,16 @@ iosdev_setup() {
   sudo gem install fastlane;
 }
 # ios development :end
+
+use_tuna_mirror_brew() {
+  export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+  export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+  export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+}
+
+install_brew_intel() {
+  cd ~/Downloads
+  mkdir homebrew
+  curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+  sudo mv homebrew /usr/local/homebrew
+}
