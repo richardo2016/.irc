@@ -98,3 +98,115 @@ install_brew_intel() {
   curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
   sudo mv homebrew /usr/local/homebrew
 }
+
+# wasm about :start
+
+# @see https://github.com/WebAssembly/wasi-sdk
+wasi_sdk_install() {
+  if [ ! -z "$1" ]; then
+    WASI_VERSION=$1
+  else
+    WASI_VERSION=12
+  fi
+  WASI_VERSION_FULL="${WASI_VERSION}.0"
+
+  if [ ! -z "$2" ]; then
+    INSTALL_DIR=$2;
+  else
+    INSTALL_DIR="$HOME/.wasienv";
+  fi
+
+  if [[ "$RAY_HOST_OS" == "Linux" ]]; then
+    WASI_OS="linux";
+  fi
+  if [[ "$RAY_HOST_OS" == "Darwin" ]]; then
+    WASI_OS="macos";
+  fi
+  if [[ "$RAY_HOST_OS" == "Windows" ]]; then
+    WASI_OS="mingw";
+  fi
+
+  CUR=$(pwd);
+  mkdir -p $INSTALL_DIR;
+  cd $INSTALL_DIR;
+  file=wasi-sdk-${WASI_VERSION_FULL}-${WASI_OS}.tar.gz;
+
+  echo "[download_wasi_sdk] Downloading WASI SDK $file... to $INSTALL_DIR";
+  curl -sL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-${WASI_OS}.tar.gz -O $file;
+  # check if package downloaded
+  ls -la
+  echo "[download_wasi_sdk] Extracting WASI SDK $file...";
+  tar xvf $file;
+
+  # print clang version
+  $INSTALL_DIR/wasi-sdk-${WASI_VERSION_FULL}/bin/clang --version
+
+  ln -sf wasi-sdk-${WASI_VERSION_FULL}/bin/ ./bin;
+  ln -sf wasi-sdk-${WASI_VERSION_FULL}/lib/ ./lib;
+  ln -sf wasi-sdk-${WASI_VERSION_FULL}/include/ ./include;
+
+  cd $CUR;
+}
+
+wasi_doctor() {
+  if [ -e ~/.wasienv/bin ]; then
+      echo "[wasi_doctor] WASI SDK is installed";
+  else
+      echo "[wasi_doctor] WASI SDK is not installed";
+  fi
+}
+
+# @see https://github.com/WebAssembly/wabt
+wabt_install() {
+  if [ ! -z "$1" ]; then
+    WABT_VERSION=$1
+  else
+    WABT_VERSION="1.0.24"
+  fi
+
+  if [ ! -z "$2" ]; then
+    INSTALL_DIR=$2;
+  else
+    INSTALL_DIR="$HOME/.wabtenv";
+  fi
+
+  if [[ "$RAY_HOST_OS" == "Linux" ]]; then
+    WABT_OS="ubuntu";
+  fi
+  if [[ "$RAY_HOST_OS" == "Darwin" ]]; then
+    WABT_OS="macos";
+  fi
+  if [[ "$RAY_HOST_OS" == "Windows" ]]; then
+    WABT_OS="windows";
+  fi
+
+  CUR=$(pwd);
+  mkdir -p $INSTALL_DIR;
+  cd $INSTALL_DIR;
+  file=wabt-${WABT_VERSION}-${WABT_OS}.tar.gz;
+
+  echo "[download_wasi_sdk] Downloading WASI SDK $file... to $INSTALL_DIR";
+  curl -sL https://github.com/WebAssembly/wabt/releases/download/${WABT_VERSION}/wabt-${WABT_VERSION}-${WABT_OS}.tar.gz -O $file;
+  # check if package downloaded
+  ls -la
+  echo "[download_wasi_sdk] Extracting WASI SDK $file...";
+  tar xvf $file;
+
+  # check if wabt binaries installed
+  ls -la ./wabt-${WABT_VERSION}/bin/
+
+  ln -sf wabt-${WABT_VERSION}/bin/ ./bin;
+  ln -sf wabt-${WABT_VERSION}/lib/ ./lib;
+  ln -sf wabt-${WABT_VERSION}/include/ ./include;
+
+  cd $CUR;
+}
+
+wabt_doctor() {
+  if [ -e ~/.wabtenv/bin ]; then
+      echo "[wabt_doctor] WABT binary is installed";
+  else
+      echo "[wabt_doctor] WABT binary is not installed";
+  fi
+}
+# wasm about :end
