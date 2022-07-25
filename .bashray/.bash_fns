@@ -209,4 +209,30 @@ wabt_doctor() {
       echo "[wabt_doctor] WABT binary is not installed";
   fi
 }
+
+EMCC_REPO=$HOME/projects/emscripten-core/emsdk;
+emcc_setup() {
+  if [ ! -z "$1" ]; then
+    EMCC_VERSION=$1
+  else
+    EMCC_VERSION="1.40.1-fastcomp"
+  fi
+
+  if [ ! -d $EMCC_REPO ]; then
+    echo "[emcc_setup] clone repo to $EMCC_REPO...";
+    git clone https://github.com/emscripten-core/emsdk.git $EMCC_REPO;
+  fi
+  CUR=$(pwd);
+
+  cd $EMCC_REPO;
+  git fetch --all --prune;
+  git pull;
+  ./emsdk install $EMCC_VERSION;
+  ./emsdk activate $EMCC_VERSION;
+  source $EMCC_REPO/emsdk_env.sh;
+  # check if emcc valid
+  emcc -v;
+
+  cd $CUR;
+}
 # wasm about :end
