@@ -103,18 +103,18 @@ install_brew_intel() {
 
 # @see https://github.com/WebAssembly/wasi-sdk
 wasi_sdk_install() {
-  if [ ! -z "$1" ]; then
-    WASI_VERSION=$1
-  else
-    WASI_VERSION=12
-  fi
+  WASI_VERSION=12
+  INSTALL_DIR="$HOME/.wasienv";
+  while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -v|--version) WASI_VERSION="$2"; shift ;;
+        -i|--install) INSTALL_DIR="$2"; shift ;;
+        --link) DO_LINK="$2"; shift ;;
+        -*|--**) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+  done
   WASI_VERSION_FULL="${WASI_VERSION}.0"
-
-  if [ ! -z "$2" ]; then
-    INSTALL_DIR=$2;
-  else
-    INSTALL_DIR="$HOME/.wasienv";
-  fi
 
   if [[ "$RAY_HOST_OS" == "Linux" ]]; then
     WASI_OS="linux";
@@ -141,9 +141,11 @@ wasi_sdk_install() {
   # print clang version
   $INSTALL_DIR/wasi-sdk-${WASI_VERSION_FULL}/bin/clang --version
 
-  ln -sf wasi-sdk-${WASI_VERSION_FULL}/bin/ ./bin;
-  ln -sf wasi-sdk-${WASI_VERSION_FULL}/lib/ ./lib;
-  ln -sf wasi-sdk-${WASI_VERSION_FULL}/include/ ./include;
+  if [ ! -z $DO_LINK ]; then
+    ln -sf wasi-sdk-${WASI_VERSION_FULL}/bin/ ./bin;
+    ln -sf wasi-sdk-${WASI_VERSION_FULL}/lib/ ./lib;
+    ln -sf wasi-sdk-${WASI_VERSION_FULL}/include/ ./include;
+  fi
 
   cd $CUR;
 }
@@ -158,17 +160,17 @@ wasi_doctor() {
 
 # @see https://github.com/WebAssembly/wabt
 wabt_install() {
-  if [ ! -z "$1" ]; then
-    WABT_VERSION=$1
-  else
-    WABT_VERSION="1.0.24"
-  fi
-
-  if [ ! -z "$2" ]; then
-    INSTALL_DIR=$2;
-  else
-    INSTALL_DIR="$HOME/.wabtenv";
-  fi
+  WABT_VERSION="1.0.24"
+  INSTALL_DIR="$HOME/.wabtenv";
+  while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -v|--version) WABT_VERSION="$2"; shift ;;
+        -i|--install) INSTALL_DIR="$2"; shift ;;
+        --link) DO_LINK="$2"; shift ;;
+        -*|--**) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+  done
 
   if [[ "$RAY_HOST_OS" == "Linux" ]]; then
     WABT_OS="ubuntu";
@@ -195,9 +197,11 @@ wabt_install() {
   # check if wabt binaries installed
   ls -la ./wabt-${WABT_VERSION}/bin/
 
-  ln -sf wabt-${WABT_VERSION}/bin/ ./bin;
-  ln -sf wabt-${WABT_VERSION}/lib/ ./lib;
-  ln -sf wabt-${WABT_VERSION}/include/ ./include;
+  if [ ! -z $DO_LINK ]; then
+    ln -sf wabt-${WABT_VERSION}/bin/ ./bin;
+    ln -sf wabt-${WABT_VERSION}/lib/ ./lib;
+    ln -sf wabt-${WABT_VERSION}/include/ ./include;
+  fi
 
   cd $CUR;
 }
