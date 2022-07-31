@@ -109,7 +109,7 @@ wasi_sdk_install() {
     case $1 in
         -v|--version) WASI_VERSION="$2"; shift ;;
         -i|--install) INSTALL_DIR="$2"; shift ;;
-        --link) DO_LINK="$2"; shift ;;
+        --link) DO_LINK="true"; ;;
         -*|--**) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
@@ -131,20 +131,32 @@ wasi_sdk_install() {
   cd $INSTALL_DIR;
   file=wasi-sdk-${WASI_VERSION_FULL}-${WASI_OS}.tar.gz;
 
-  echo "[download_wasi_sdk] Downloading WASI SDK $file... to $INSTALL_DIR";
+  echo "[wasi_sdk_install] Downloading WASI SDK $file... to $INSTALL_DIR";
   curl -sL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-${WASI_OS}.tar.gz -O $file;
   # check if package downloaded
   ls -la
-  echo "[download_wasi_sdk] Extracting WASI SDK $file...";
+  echo "[wasi_sdk_install] Extracting WASI SDK $file...";
   tar xvf $file;
 
   # print clang version
   $INSTALL_DIR/wasi-sdk-${WASI_VERSION_FULL}/bin/clang --version
 
   if [ ! -z $DO_LINK ]; then
-    ln -sf wasi-sdk-${WASI_VERSION_FULL}/bin/ ./bin;
-    ln -sf wasi-sdk-${WASI_VERSION_FULL}/lib/ ./lib;
-    ln -sf wasi-sdk-${WASI_VERSION_FULL}/include/ ./include;
+  
+    if [[ $RAY_IS_WIN_BASH ]]; then
+      # https://stackoverflow.com/questions/18654162/enable-native-ntfs-symbolic-links-for-cygwin
+      export CYGWIN=winsymlinks:nativestrict
+      # https://stackoverflow.com/questions/18641864/git-bash-shell-fails-to-create-symbolic-links/40914277#40914277
+      export MSYS=winsymlinks:nativestrict
+      echo "[wasi_sdk_install] now we are under windows bash, so we need to set CYGWIN and MSYS to use windows symbolic links";
+      echo "[wasi_sdk_install] it's better to run bash as admin to do link.";
+    fi
+
+    echo "[wasi_sdk_install] install finished! 'export PATH=\$PATH:$INSTALL_DIR/bin' >> ~/.bashrc";
+    [ -d wasi-sdk-${WASI_VERSION_FULL}/bin/ ] && rm -rf ./bin && ln -sf wasi-sdk-${WASI_VERSION_FULL}/bin/ ./bin;
+    [ -d wasi-sdk-${WASI_VERSION_FULL}/lib/ ] && rm -rf ./lib && ln -sf wasi-sdk-${WASI_VERSION_FULL}/lib/ ./lib;
+    [ -d wasi-sdk-${WASI_VERSION_FULL}/include/ ] && rm -rf ./include && ln -sf wasi-sdk-${WASI_VERSION_FULL}/include/ ./include;
+    [ -d wasi-sdk-${WASI_VERSION_FULL}/share/ ] && rm -rf ./share && ln -sf wasi-sdk-${WASI_VERSION_FULL}/share/ ./share;
   fi
 
   cd $CUR;
@@ -166,7 +178,7 @@ wabt_install() {
     case $1 in
         -v|--version) WABT_VERSION="$2"; shift ;;
         -i|--install) INSTALL_DIR="$2"; shift ;;
-        --link) DO_LINK="$2"; shift ;;
+        --link) DO_LINK="true"; ;;
         -*|--**) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
@@ -187,20 +199,31 @@ wabt_install() {
   cd $INSTALL_DIR;
   file=wabt-${WABT_VERSION}-${WABT_OS}.tar.gz;
 
-  echo "[download_wasi_sdk] Downloading WASI SDK $file... to $INSTALL_DIR";
+  echo "[wabt_install] Downloading WASI SDK $file... to $INSTALL_DIR";
   curl -sL https://github.com/WebAssembly/wabt/releases/download/${WABT_VERSION}/wabt-${WABT_VERSION}-${WABT_OS}.tar.gz -O $file;
   # check if package downloaded
   ls -la
-  echo "[download_wasi_sdk] Extracting WASI SDK $file...";
+  echo "[wabt_install] Extracting WASI SDK $file...";
   tar xvf $file;
 
   # check if wabt binaries installed
   ls -la ./wabt-${WABT_VERSION}/bin/
 
   if [ ! -z $DO_LINK ]; then
-    ln -sf wabt-${WABT_VERSION}/bin/ ./bin;
-    ln -sf wabt-${WABT_VERSION}/lib/ ./lib;
-    ln -sf wabt-${WABT_VERSION}/include/ ./include;
+    if [[ $RAY_IS_WIN_BASH ]]; then
+      # https://stackoverflow.com/questions/18654162/enable-native-ntfs-symbolic-links-for-cygwin
+      export CYGWIN=winsymlinks:nativestrict
+      # https://stackoverflow.com/questions/18641864/git-bash-shell-fails-to-create-symbolic-links/40914277#40914277
+      export MSYS=winsymlinks:nativestrict
+      echo "[wabt_install] now we are under windows bash, so we need to set CYGWIN and MSYS to use windows symbolic links";
+      echo "[wabt_install] it's better to run bash as admin to do link.";
+    fi
+    # TODO: add shell script to run command as admin.
+    [ -d wabt-${WABT_VERSION}/bin/ ] && rm -rf ./bin && ln -sf wabt-${WABT_VERSION}/bin/ ./bin;
+    [ -d wabt-${WABT_VERSION}/lib/ ] && rm -rf ./lib && ln -sf wabt-${WABT_VERSION}/lib/ ./lib;
+    [ -d wabt-${WABT_VERSION}/include/ ] && rm -rf ./include && ln -sf wabt-${WABT_VERSION}/include/ ./include;
+
+    echo "[wabt_install] install finished! 'export PATH=\$PATH:$INSTALL_DIR/bin' >> ~/.bashrc";
   fi
 
   cd $CUR;
