@@ -106,3 +106,7 @@ esac
 if [ -f ~/.git-completion.bash ]; then
     . ~/.git-completion.bash
 fi
+
+if [[ "$RAY_HOST_OS" == "Windows" ]]; then
+  alias open="start \"\"";
+fi
