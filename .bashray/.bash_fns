@@ -263,3 +263,5 @@ emcc_setup() {
   cd $CUR;
 }
 # wasm about :end
+
+. ~/.bashray/.bash_aliases --source-only
