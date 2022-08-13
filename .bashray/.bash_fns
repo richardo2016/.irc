@@ -264,4 +264,23 @@ emcc_setup() {
 }
 # wasm about :end
 
+acme_install () {
+  CUR=$(pwd);
+  if [ ! -d ~/acme.sh ]; then
+    git clone https://github.com/acmesh-official/acme.sh.git ~/acme.sh
+  fi
+  cd ~/acme.sh;
+  git pull;
+
+  cd $CUR;
+  echo "[acme_install] installed acme.sh to $HOME/acme.sh";
+  check_acme;
+}
+check_acme() {
+  if [ -d ~/acme.sh ]; then
+    export PATH=$PATH:"~/acme.sh"
+  fi
+}
+check_acme;
+
 . ~/.bashray/.bash_aliases --source-only
