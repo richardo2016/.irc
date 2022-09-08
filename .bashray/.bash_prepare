@@ -9,6 +9,13 @@ get_envs() {
 			;;
 	esac
 
+  case $OSTYPE in
+    msys*|cygwin*)
+			RAY_HOST_OS="Windows"
+      RAY_IS_WIN_BASH=true
+			;;
+  esac
+
 	case ${RAY_HOST_ARCH} in
 		i386|i686) RAY_HOST_ARCH="x86";;
 		x86_64|amd64) RAY_HOST_ARCH="x64";;
