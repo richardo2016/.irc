@@ -28,7 +28,11 @@ fi
 case ${RAY_HOST_OS} in
   Windows)
     VSCPATH="$HOME/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe"
-    alias vsc=$VSCPATH
+    if [ -e "$VSCPATH" ]; then
+      alias vsc="code"
+    else
+      alias vsc=$VSCPATH
+    fi
     ;;
   Darwin)
     VSCPATH="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
