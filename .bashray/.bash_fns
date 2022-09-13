@@ -2,9 +2,26 @@ reload_bash_session() {
   source ~/.bash_profile
 }
 
+parse_git_local_author() {
+  TEXT=$(git config --local user.name)
+  EMAIL=$(git config --local user.email)
+  if [ -z "$TEXT" ]; then
+    TEXT="$EMAIL"
+  elif [ ! -z "$EMAIL" ]; then
+    TEXT="$TEXT <$EMAIL>"
+  fi
+
+  echo $TEXT 2> /dev/null | sed -e 's/\(.*\)/\1/'
+}
+
 # git
 parse_git_branch() {
-  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(git@ \1)/'
+  AUTHOR=$(parse_git_local_author);
+
+  if [ ! -z "$AUTHOR" ]; then
+    AUTHOR=" 🚀 $AUTHOR"
+  fi
+  echo "$(git branch)${AUTHOR}" 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(git@ \1)/'
 }
 
 dump_git() {

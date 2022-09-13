@@ -15,13 +15,9 @@ case ${RAY_HOST_OS} in
 esac
 
 if [ -z $RAY_IS_WIN_BASH ]; then
-fast_git_ps1 ()
-{
-    printf -- "$(git branch 2>/dev/null | grep -e '* ' | sed 's/^..(.*)/ {\1} /')"
-}
-PS1="\[\e[31;1m\]😃  \u \$(fast_git_ps1) \[\e[32m\]\w\[\e[34;1m\] \[\e[35;1m\] \[\e[37;1m\]"
+PS1="\[\e[31;1m\]😃  \u \$(parse_git_branch) \[\e[32m\]\w\[\e[34;1m\] \[\e[35;1m\] \[\e[37;1m\]"
 else
-PS1="\[\033[33m\]★\[\033[36m\]  \u@\h \[\e[31;1m\]\$(parse_git_branch) \[\e[32m\]\w\[\e[34;1m\] \[\e[35;1m\] \[\e[37;1m\]"
+PS1="\[\033[33m\]⭐\[\033[36m\]  \u@\h \[\e[31;1m\]\$(parse_git_branch) \[\e[32m\]\w\[\e[34;1m\] \[\e[35;1m\] \[\e[37;1m\]"
 fi
 
 # Editor aliases
