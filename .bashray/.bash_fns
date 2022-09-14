@@ -3,8 +3,8 @@ reload_bash_session() {
 }
 
 parse_git_local_author() {
-  TEXT=$(git config --local user.name)
-  EMAIL=$(git config --local user.email)
+  TEXT=$(git config --local user.name 2> /dev/null)
+  EMAIL=$(git config --local user.email 2> /dev/null)
   if [ -z "$TEXT" ]; then
     TEXT="$EMAIL"
   elif [ ! -z "$EMAIL" ]; then
@@ -21,7 +21,7 @@ parse_git_branch() {
   if [ ! -z "$AUTHOR" ]; then
     AUTHOR=" 🚀 $AUTHOR"
   fi
-  echo "$(git branch)${AUTHOR}" 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(git@ \1)/'
+  echo "$(git branch 2> /dev/null)${AUTHOR}" 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(git@ \1)/'
 }
 
 dump_git() {
