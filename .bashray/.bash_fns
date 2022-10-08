@@ -279,6 +279,19 @@ emcc_setup() {
 
   cd $CUR;
 }
+if [ -d "$EMCC_REPO" ]; then
+  export PATH=$PATH:"$EMCC_REPO";
+  # for windows
+  if [ -f $EMCC_REPO/python/3.9.2-nuget_64bit/python.exe ]; then
+    export EMSDK_PYTHON=$EMCC_REPO/python/3.9.2-nuget_64bit/python.exe
+  fi
+  if [ -f $EMCC_REPO/python/3.7.4-pywin32_64bit/python.exe ]; then
+    export EMSDK_PYTHON=$EMCC_REPO/python/3.7.4-pywin32_64bit/python.exe
+  fi
+  if [ $RAY_HOST_OS = "Windows" -a -f "$EMCC_REPO/upstream/emscripten/emcc" ]; then
+    export PATH=$PATH:"$EMCC_REPO/upstream/emscripten/";
+  fi
+fi
 # wasm about :end
 
 acme_install () {
