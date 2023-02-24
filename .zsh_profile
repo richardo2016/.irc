@@ -1,0 +1,11 @@
+if [ -e ~/.bashrc ]; then
+    source ~/.bashrc;
+fi
+
+if [ -e ~/.bashrc_richard ]; then
+    source ~/.bashrc_richard;
+fi
+
+if [ -e ~/.zshrc_richard ]; then
+    source ~/.zshrc_richard;
+fi

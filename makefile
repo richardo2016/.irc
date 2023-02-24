@@ -14,4 +14,6 @@ install:
 	rm -rf ~/.bashray && cp -r ./.bashray ~/;
 	rm -f ~/.profile && cp ./.profile ~/;
 	rm -f ~/.bashrc && cp ./.bashrc ~/;
+	rm -f ~/.zshrc && cp ./.zshrc ~/;
 	rm -f ~/.bash_profile && cp ./.bash_profile ~/;
+	rm -f ~/.zsh_profile && cp ./.zsh_profile ~/;
