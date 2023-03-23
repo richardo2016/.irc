@@ -254,6 +254,12 @@ wabt_doctor() {
   fi
 }
 
+check_window_port() {
+  netstat -aon| findstr "$1";
+  echo "";
+  echo "if found, run 'taskkill /T /F /PID <PORT>' to kill it.";
+}
+
 EMCC_REPO=$HOME/projects/emscripten-core/emsdk;
 emcc_setup() {
   if [ ! -z "$1" ]; then
