@@ -83,7 +83,11 @@ if [ $RAY_HOST_OS = "Darwin" ]; then
 fi
 
 # golang's env
-export PATH="/usr/local/go/bin:/usr/local/bin:$PATH"
+case ${RAY_HOST_OS} in
+  Darwin|Linux)
+    export PATH="/usr/local/go/bin:/usr/local/bin:$PATH"
+    ;;
+esac
 export GOPATH=~/WorkSpace/go
 # gopath
 export PATH="$PATH:$GOPATH/bin"
