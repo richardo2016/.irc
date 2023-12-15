@@ -1,6 +1,7 @@
 # which check env and give variable `RAY_HOST_OS`
 . ~/.bashray/.bash_prepare --source-only
 . ~/.bashray/.bash_fns --source-only
+. ~/.bashray/.bash_fns_proxies --source-only
 . ~/.bashray/.bash_fns_video --source-only
 
 # switch back to bash in some host
