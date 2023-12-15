@@ -38,3 +38,5 @@ case ${RAY_HOST_OS} in
     alias subl=$SUBLPATH
     ;;
 esac
+
+. ~/.bashray/.bash_postpare --source-only
