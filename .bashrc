@@ -10,8 +10,7 @@ case ${RAY_HOST_OS} in
     # in Darwin > 10.15, zsh is default shell but I like bash.
     CUR_SH=`echo $0`;
     if [[ ! $CUR_SH =~ "bash" ]]; then
-      echo "current shell is is '$CUR_SH', now we switch back to bash";
-      chsh -s /bin/bash
+      echo "current shell is is '$CUR_SH', you can run 'chsh -s /bin/bash' to switch back to bash";
     fi
     ;;
 esac
