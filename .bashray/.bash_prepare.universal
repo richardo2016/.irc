@@ -4,6 +4,8 @@ case $RAY_HOST_OS in
     # replace :/ to / in $SYSTEMDRIVE
     export ray_system_drive_lower=$(echo ${SYSTEMDRIVE//\:/} | tr '[:upper:]' '[:lower:]');
     export RAY_SHARED_DIR=/$ray_system_drive_lower/Users/Public;
+    export RAY_SHARED_MINGW64_DIR=$RAY_SHARED_DIR/mingw64;
+    export PATH=$RAY_SHARED_MINGW64_DIR/bin:$PATH;
     ;;
   Darwin)
     # see https://support.apple.com/guide/mac-help/share-files-with-others-who-use-your-mac-mchlp1122/mac

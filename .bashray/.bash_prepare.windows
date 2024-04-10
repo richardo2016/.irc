@@ -5,3 +5,19 @@ if [[ "$RAY_HOST_OS" == "Windows" ]]; then
     export PATH=$PATH:/mingw64/usr/bin
   fi
 fi
+
+windows_install_make() {
+  local make_zip=https://jaist.dl.sourceforge.net/project/ezwinports/make-4.4.1-with-guile-w32-bin.zip;
+
+  mkdir -p $RAY_SHARED_MINGW64_DIR;
+
+  if [ ! -e $RAY_SHARED_MINGW64_DIR/bin/make ] || [ $1 == "--force" ]; then
+    rm -f $TMPDIR/make-with-guile-w32-bin.zip;
+    curl -sfL $make_zip -o $TMPDIR/make-with-guile-w32-bin.zip
+    unzip $TMPDIR/make-with-guile-w32-bin.zip -d $RAY_SHARED_MINGW64_DIR;
+
+    echo "Installed $RAY_SHARED_MINGW64_DIR/bin/make";
+  else
+    echo "make already installed in $RAY_SHARED_MINGW64_DIR";
+  fi
+}
