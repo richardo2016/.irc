@@ -36,7 +36,7 @@ parse_git_branch() {
 dump_git() {
   git config --global user.name "richardo2016"
   git config --global user.email "richardo2016@gmail.com"
-  
+
   git config --global credential.helper "store"
 
   echo "dump_git finished";
@@ -45,14 +45,14 @@ dump_git() {
 dump_gitproxy() {
   git config --global http.https://github.com.proxy "sock5://127.0.0.1:7890"
   git config --global https.https://github.com.proxy "sock5://127.0.0.1:7890"
-  
+
   echo "dump_gitproxy finished";
 }
 
 dump_rc() {
   dump_git
   dump_gitproxy
-  
+
   echo "dump_rc finished";
 }
 
@@ -66,8 +66,12 @@ use_brew_openssl() {
 }
 
 ## nodejs setup function
-install_nvm () {
-  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
+install_nvm() {
+  if [ "$RAY_HOST_OS" === "Windows" ]; then
+    install_nvm_windows;
+  else
+    install_nvm_unix;
+  fi
 }
 
 proxy2charles () {
@@ -133,10 +137,10 @@ wasi_sdk_install() {
   INSTALL_DIR="$HOME/.wasienv";
   while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -v|--version) WASI_VERSION="$2"; shift ;;
-        -i|--install) INSTALL_DIR="$2"; shift ;;
-        --link) DO_LINK="true"; ;;
-        -*|--**) echo "Unknown parameter passed: $1"; exit 1 ;;
+      -v|--version) WASI_VERSION="$2"; shift ;;
+      -i|--install) INSTALL_DIR="$2"; shift ;;
+      --link) DO_LINK="true"; ;;
+      -*|--**) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
   done
@@ -168,7 +172,7 @@ wasi_sdk_install() {
   $INSTALL_DIR/wasi-sdk-${WASI_VERSION_FULL}/bin/clang --version
 
   if [ ! -z $DO_LINK ]; then
-  
+
     if [[ $RAY_IS_WIN_BASH ]]; then
       # https://stackoverflow.com/questions/18654162/enable-native-ntfs-symbolic-links-for-cygwin
       export CYGWIN=winsymlinks:nativestrict
@@ -327,5 +331,3 @@ check_acme() {
   fi
 }
 check_acme;
-
-. ~/.bashray/.bash_aliases --source-only

@@ -1,0 +1,133 @@
+# shared/public directory
+case $RAY_HOST_OS in
+  Windows)
+    # replace :/ to / in $SYSTEMDRIVE
+    export ray_system_drive_lower=$(echo ${SYSTEMDRIVE//\:/} | tr '[:upper:]' '[:lower:]');
+    export RAY_SHARED_DIR=/$ray_system_drive_lower/Users/Public;
+    export RAY_SHARED_MINGW64_DIR=$RAY_SHARED_DIR/mingw64;
+    export PATH=$RAY_SHARED_MINGW64_DIR/bin:$PATH;
+    ;;
+  Darwin)
+    # see https://support.apple.com/guide/mac-help/share-files-with-others-who-use-your-mac-mchlp1122/mac
+    export RAY_SHARED_DIR=$HOME/Public;
+    ;;
+  Linux)
+    export RAY_SHARED_DIR=$HOME/Public;
+    ;;
+esac
+
+# nodejs
+enable_node_mirrors() {
+  export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
+  export NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
+  export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+  export SASS_BINARY_SITE=https://npmmirror.com/mirrors/node-sass/
+  export PHANTOMJS_CDNURL=http://npmmirror.com/mirrors/phantomjs/
+  export CHROMEDRIVER_CDNURL=http://npmmirror.com/mirrors/chromedriver/
+  export SELENIUM_CDNURL=http://npmmirror.com/mirrorss/selenium/
+  export SQLITE3_BINARY_HOST_MIRROR=http://npmmirror.com/mirrors/
+  export PROFILER_BINARY_HOST_MIRROR=http://npmmirror.com/mirrors/node-inspector/
+  export SENTRYCLI_CDNURL=https://npmmirror.com/mirrors/sentry-cli/
+}
+[ -z $RAY_DISABLE_SETUP_NODE_MIRRORS ] && enable_node_mirrors;
+
+## nvm
+install_nvm_windows() {
+  local windows_nvm_install_dir=$RAY_SHARED_DIR/bin/nvm-noinstall;
+  if [ ! -e $windows_nvm_install_dir/nvm ] || [ "$1" == "--force" ]; then
+    rm -rf $windows_nvm_install_dir;
+    echo "cleaned $windows_nvm_install_dir if it exists.";
+    mkdir -p $windows_nvm_install_dir;
+
+    rm -f $TMPDIR/nvm-noinstall.zip;
+    curl -sfL https://github.com/coreybutler/nvm-windows/releases/download/1.1.12/nvm-noinstall.zip -o $TMPDIR/nvm-noinstall.zip
+    unzip $TMPDIR/nvm-noinstall.zip -d $windows_nvm_install_dir;
+
+    echo "nvm installed in $windows_nvm_install_dir";
+  else
+    echo "nvm already installed in $windows_nvm_install_dir";
+  fi
+  export PATH=$windows_nvm_install_dir:$PATH;
+}
+install_nvm_unix() {
+  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.39.7/install.sh | bash
+}
+
+setup_node_env_from_nvm(){
+  ## nodejs's env
+  case $RAY_HOST_OS in
+    Windows)
+      if [ -e "$RAY_SHARED_DIR/bin/nvm-noinstall/nvm" ]; then
+        local root_raw=$(nvm root);
+        local nvm_root=${root_raw/"Current Root: "/};
+        local node_ver=$(nvm current);
+        export NODE_PATH=$nvm_root\\$node_ver;
+        export NODE_BIN_PATH="$NODE_PATH"
+        export PATH="$PATH:$NODE_BIN_PATH"
+      fi
+      ;;
+    Darwin|Linux)
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+      if [ -e "nvm" ]; then
+        export NODE_PATH="$HOME/.nvm/versions/node/$(nvm version)/lib"
+        export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm --version)/bin"
+        export PATH="$PATH:$NODE_BIN_PATH"
+      fi
+      ;;
+  esac
+}
+setup_node_env_from_nvm;
+
+alias onpm="npm --registry=https://registry.npmjs.org \
+  --userconfig=$HOME/.onpmrc"
+
+# golang
+export RAY_GOPATH=~/WorkSpace/go
+if [ -d $RAY_GOPATH ]; then
+  [ -z $GOPATH ] && export GOPATH=$RAY_GOPATH
+fi
+[ -d $GOPATH ] && export PATH=$PATH:$GOPATH/bin
+export PATH="$PATH:$RAY_GOPATH/bin"
+
+# composer
+export PATH="$PATH:$HOME/.composer/vendor/bin"
+
+# # GRADLE
+# export GRADLE_HOME=~/env/gradle-4.0.1;
+# export PATH=$PATH:$GRADLE_HOME/bin
+
+# rbenv, @see https://github.com/rbenv/rbenv
+if [ -e rbenv ] || [ -e /usr/local/bin/rbenv ]; then
+    eval "$(rbenv init - bash)"
+    export PATH=$PATH:~/.rbenv/shims
+fi
+
+# Editor aliases
+case ${RAY_HOST_OS} in
+  Windows)
+    VSCPATH="$HOME/AppData/Local/Programs/Microsoft\ VS\ Code/Code.exe"
+    if [ -e "$VSCPATH" ]; then
+      alias vsc="code"
+    else
+      alias vsc=$VSCPATH
+    fi
+    ;;
+  Darwin)
+    VSCPATH="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
+    alias vsc=$VSCPATH
+    SUBLPATH="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+    alias subl=$SUBLPATH
+    ;;
+esac
+
+if [ -z $RAY_IS_WIN_BASH ]; then
+PS1="\[\e[31;1m\]😃  \u \$(parse_git_branch) \[\e[32m\]\w\[\e[34;1m\] \[\e[35;1m\] \[\e[37;1m\]"
+else
+PS1="\[\033[33m\]⭐\[\033[36m\]  \u@\h \[\e[31;1m\]\$(parse_git_branch) \[\e[32m\]\w\[\e[34;1m\] \[\e[35;1m\] \[\e[37;1m\]"
+fi
+
+## git-completion.bash
+if [ -f ~/.git-completion.bash ]; then
+  . ~/.git-completion.bash
+fi

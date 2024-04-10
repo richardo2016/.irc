@@ -1,0 +1,55 @@
+# brew's mirror
+export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
+
+# brew on darwin
+if [ $RAY_HOST_OS = "Darwin" ]; then
+  if [ -f /usr/local/homebrew/bin/brew ]; then
+    alias brewx64='arch -x86_64 /usr/local/homebrew/bin/brew'
+    if [ $RAY_HOST_ARCH = "x64" ]; then
+      RAY_BREW_PREFIX=$(brewx64 --prefix);
+      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+      # If you come from bash you might have to change your $PATH.
+      # need this for x86_64 brew
+      # export PATH=$HOME/bin:/usr/local/bin:$PATH
+    fi
+  fi
+
+  if [ -f /opt/homebrew/bin/brew ]; then
+    alias brewarm64='arch -arm64 /opt/homebrew/bin/brew'
+    if [ $RAY_HOST_ARCH = "arm64" ]; then
+      RAY_BREW_PREFIX=$(brewarm64 --prefix);
+      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+    fi
+  fi
+fi
+
+# golang's env
+case ${RAY_HOST_OS} in
+  Darwin|Linux)
+    export PATH="/usr/local/go/bin:/usr/local/bin:$PATH"
+    ;;
+esac
+
+case ${RAY_HOST_OS} in
+  Darwin)
+    ## pyenv
+    if command -v pyenv 1>/dev/null 2>&1; then
+        eval "$(pyenv init -)"
+    fi
+
+    # notice switch back to bash in some host
+    # in Darwin > 10.15, zsh is default shell but I like bash.
+    CUR_SH=`echo $0`;
+    if [[ ! $CUR_SH =~ "bash" ]]; then
+      echo "current shell is is '$CUR_SH', you can run 'chsh -s /bin/bash' to switch back to bash";
+    fi
+    ;;
+esac
+
+## ruby's env
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+if [ -e "$PATH:$HOME/.rvm/bin" ]; then
+  export PATH="$PATH:$HOME/.rvm/bin"
+fi

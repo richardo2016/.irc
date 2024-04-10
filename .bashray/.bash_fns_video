@@ -1,12 +1,12 @@
 mp4tomp3() {
-    if [ -z $1 ]; then
-        echo "input file required."
-        # exit ;
-    elif [ ! -f $1 ]; then
-        echo "file not exist: $1"
-        # exit ;
-    else
-        echo "[mp4tomp3] will convert $1 to $2";
-        ffmpeg -i $1 -vn -b:a 320K $2
-    fi
+  if [ -z $1 ]; then
+    echo "input file required."
+    # exit ;
+  elif [ ! -f $1 ]; then
+    echo "file not exist: $1"
+    # exit ;
+  else
+    echo "[mp4tomp3] will convert $1 to $2";
+    ffmpeg -i $1 -vn -b:a 320K $2
+  fi
 }

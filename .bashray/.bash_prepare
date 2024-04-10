@@ -1,147 +1,42 @@
 get_envs() {
-	RAY_HOST_OS=`uname`
-	RAY_HOST_ARCH=`uname -m`
+  RAY_HOST_OS=`uname`
+  RAY_HOST_ARCH=`uname -m`
 
-	case ${RAY_HOST_OS} in
-		MINGW*|CYGWIN*)
-			RAY_HOST_OS="Windows"
+  case ${RAY_HOST_OS} in
+    MINGW*|CYGWIN*)
+      RAY_HOST_OS="Windows"
       RAY_IS_WIN_BASH=true
-			;;
-	esac
+      ;;
+  esac
 
   case $OSTYPE in
     msys*|cygwin*)
-			RAY_HOST_OS="Windows"
+      RAY_HOST_OS="Windows"
       RAY_IS_WIN_BASH=true
-			;;
+      ;;
   esac
 
-	case ${RAY_HOST_ARCH} in
-		i386|i686) RAY_HOST_ARCH="x86";;
-		x86_64|amd64) RAY_HOST_ARCH="x64";;
-		armv6) RAY_HOST_ARCH="armv6";;
-		armv7|armv7s|armv7l) RAY_HOST_ARCH="arm";;
-		aarch64) RAY_HOST_ARCH="arm64";;
-		mips|mipsel) RAY_HOST_ARCH="mips";;
-		mips64) RAY_HOST_ARCH="mips64";;
-		powerpc) RAY_HOST_ARCH="ppc";;
-		ppc64) RAY_HOST_ARCH="ppc64";;
-	esac
-  
-  case $RAY_HOST_OS in
-    Windows)
-      # replace :/ to / in $SYSTEMDRIVE
-      export ray_system_drive_lower=$(echo ${SYSTEMDRIVE//\:/} | tr '[:upper:]' '[:lower:]');
-      export RAY_SHARED_DIR=/$ray_system_drive_lower/Users/Public;
-      ;;
-    Darwin)
-      # see https://support.apple.com/guide/mac-help/share-files-with-others-who-use-your-mac-mchlp1122/mac
-      export RAY_SHARED_DIR=$HOME/Public;
-      ;;
-    Linux)
-      export RAY_SHARED_DIR=$HOME/Public;
-      ;;
+  case ${RAY_HOST_ARCH} in
+    i386|i686) RAY_HOST_ARCH="x86";;
+    x86_64|amd64) RAY_HOST_ARCH="x64";;
+    armv6) RAY_HOST_ARCH="armv6";;
+    armv7|armv7s|armv7l) RAY_HOST_ARCH="arm";;
+    aarch64) RAY_HOST_ARCH="arm64";;
+    mips|mipsel) RAY_HOST_ARCH="mips";;
+    mips64) RAY_HOST_ARCH="mips64";;
+    powerpc) RAY_HOST_ARCH="ppc";;
+    ppc64) RAY_HOST_ARCH="ppc64";;
   esac
 }
 
 get_envs;
 
-# nodejs
-## mirror in china
-export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
-export NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
-export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-export SASS_BINARY_SITE=https://npmmirror.com/mirrors/node-sass/
-export PHANTOMJS_CDNURL=http://npmmirror.com/mirrors/phantomjs/
-export CHROMEDRIVER_CDNURL=http://npmmirror.com/mirrors/chromedriver/
-export SELENIUM_CDNURL=http://npmmirror.com/mirrorss/selenium/
-export SQLITE3_BINARY_HOST_MIRROR=http://npmmirror.com/mirrors/
-export PROFILER_BINARY_HOST_MIRROR=http://npmmirror.com/mirrors/node-inspector/
-export SENTRYCLI_CDNURL=https://npmmirror.com/mirrors/sentry-cli/
-
-## nodejs's env
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-if [ -e "nvm" ]; then
-	# nvm use 8
-	export NODE_PATH="$HOME/.nvm/versions/node/$(nvm version)/lib"
-	export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm --version)/bin"
-	export PATH="$PATH:$NODE_BIN_PATH"
-fi
-
-## ruby's env
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-if [ -e "$PATH:$HOME/.rvm/bin" ]; then
-  export PATH="$PATH:$HOME/.rvm/bin"
-fi
-
-## alias for nodjes
-alias onpm="npm --registry=https://registry.npmjs.org \
-  --userconfig=$HOME/.onpmrc"
-
-# brew's mirror
-export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
-
-if [ $RAY_HOST_OS = "Darwin" ]; then
-  if [ -f /usr/local/homebrew/bin/brew ]; then
-    alias brewx64='arch -x86_64 /usr/local/homebrew/bin/brew'
-    if [ $RAY_HOST_ARCH = "x64" ]; then
-      RAY_BREW_PREFIX=$(brewx64 --prefix);
-      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
-      # If you come from bash you might have to change your $PATH.
-      # need this for x86_64 brew
-      # export PATH=$HOME/bin:/usr/local/bin:$PATH
-    fi
-  fi
-
-  if [ -f /opt/homebrew/bin/brew ]; then
-    alias brewarm64='arch -arm64 /opt/homebrew/bin/brew'
-    if [ $RAY_HOST_ARCH = "arm64" ]; then
-      RAY_BREW_PREFIX=$(brewarm64 --prefix);
-      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
-    fi
-  fi
-fi
-
-# golang's env
+. ~/.bashray/.bash_prepare.universal --source-only
 case ${RAY_HOST_OS} in
   Darwin|Linux)
-    export PATH="/usr/local/go/bin:/usr/local/bin:$PATH"
+    . ~/.bashray/.bash_prepare.unix --source-only
+    ;;
+  Windows)
+    . ~/.bashray/.bash_prepare.windows --source-only
     ;;
 esac
-export GOPATH=~/WorkSpace/go
-# gopath
-export PATH="$PATH:$GOPATH/bin"
-
-# composer
-export PATH="$PATH:$HOME/.composer/vendor/bin"
-
-# GRADLE
-export GRADLE_HOME=~/env/gradle-4.0.1;
-export PATH=$PATH:$GRADLE_HOME/bin
-
-# rbenv, @see https://github.com/rbenv/rbenv
-if [ -e rbenv ] || [ -e /usr/local/bin/rbenv ]; then
-    eval "$(rbenv init - bash)"
-    export PATH=$PATH:~/.rbenv/shims
-fi
-
-## pyenv
-case ${RAY_HOST_OS} in
-  Darwin)
-    if command -v pyenv 1>/dev/null 2>&1; then
-        eval "$(pyenv init -)"
-    fi
-    ;;
-esac
-
-## git-completion.bash
-if [ -f ~/.git-completion.bash ]; then
-    . ~/.git-completion.bash
-fi
-
-if [[ "$RAY_HOST_OS" == "Windows" ]]; then
-  alias open="start \"\"";
-fi
