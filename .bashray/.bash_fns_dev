@@ -1,0 +1,11 @@
+setup_android_envs() {
+    if [ ! -z $ANDROID_HOME ]; then
+        if [ ! -z $ANDROID_SDK_ROOT ]; then
+            export ANDROID_SDK_ROOT=$ANDROID_HOME
+        fi
+        export PATH=$ANDROID_HOME/emulator:$PATH
+        export PATH=$ANDROID_HOME/platform-tools:$PATH
+        export PATH=$ANDROID_HOME/platforms:$PATH
+        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+    fi
+}

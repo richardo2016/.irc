@@ -1,0 +1,2 @@
+# auto setup android by default
+[ -z $RAY_DISABLE_SETUP_ANDROID_ENVS ] && setup_android_envs;
