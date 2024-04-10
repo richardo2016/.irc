@@ -80,16 +80,20 @@ setup_node_env_from_nvm;
 alias onpm="npm --registry=https://registry.npmjs.org \
   --userconfig=$HOME/.onpmrc"
 
-export GOPATH=~/WorkSpace/go
-# gopath
-export PATH="$PATH:$GOPATH/bin"
+# golang
+export RAY_GOPATH=~/WorkSpace/go
+if [ -d $RAY_GOPATH ]; then
+  [ -z $GOPATH ] && export GOPATH=$RAY_GOPATH
+fi
+[ -d $GOPATH ] && export PATH=$PATH:$GOPATH/bin
+export PATH="$PATH:$RAY_GOPATH/bin"
 
 # composer
 export PATH="$PATH:$HOME/.composer/vendor/bin"
 
-# GRADLE
-export GRADLE_HOME=~/env/gradle-4.0.1;
-export PATH=$PATH:$GRADLE_HOME/bin
+# # GRADLE
+# export GRADLE_HOME=~/env/gradle-4.0.1;
+# export PATH=$PATH:$GRADLE_HOME/bin
 
 # rbenv, @see https://github.com/rbenv/rbenv
 if [ -e rbenv ] || [ -e /usr/local/bin/rbenv ]; then
