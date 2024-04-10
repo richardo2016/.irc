@@ -1,3 +1,25 @@
+# zip
+install_zip() {
+  if [ -z "$1" ]; then
+    echo "Usage: install_zip <zip_file> [install_dir]"
+    return 1
+  fi
+
+  local zip_file=$1
+  local install_dir=${2:-~/.bashray}
+
+  if [ ! -d ${install_dir} ]; then
+    mkdir -p ${install_dir}
+  fi
+
+  if [ -f ${zip_file} ]; then
+    unzip -o ${zip_file} -d ${install_dir}
+  else
+    echo "Error: ${zip_file} not found"
+    return 1
+  fi
+}
+
 setup_android_envs() {
   if [ ! -z $ANDROID_HOME ]; then
     if [ ! -z $ANDROID_SDK_ROOT ]; then
