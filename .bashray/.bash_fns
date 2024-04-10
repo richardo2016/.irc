@@ -66,8 +66,12 @@ use_brew_openssl() {
 }
 
 ## nodejs setup function
-install_nvm () {
-  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
+install_nvm() {
+  if [ "$RAY_HOST_OS" === "Windows" ]; then
+    install_nvm_windows;
+  else
+    install_nvm_unix;
+  fi
 }
 
 proxy2charles () {
