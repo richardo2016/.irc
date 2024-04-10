@@ -1,5 +1,14 @@
 reload_bash_session() {
-  source ~/.bash_profile
+  if [ "$1" = "--force" ]; then
+    recreate_bash_session;
+  else
+    source ~/.bash_profile
+  fi
+}
+
+recreate_bash_session() {
+  echo "clean history and recreate bash session...";
+  exec bash -l;
 }
 
 parse_git_local_author() {
