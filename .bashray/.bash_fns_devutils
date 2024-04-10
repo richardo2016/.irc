@@ -1,0 +1,54 @@
+# zip
+install_zip() {
+  if [ -z "$1" ]; then
+    echo "Usage: install_zip <zip_file> [install_dir]"
+    return 1
+  fi
+
+  local zip_file=$1
+  local install_dir=${2:-~/.bashray}
+
+  if [ ! -d ${install_dir} ]; then
+    mkdir -p ${install_dir}
+  fi
+
+  if [ -f ${zip_file} ]; then
+    unzip -o ${zip_file} -d ${install_dir}
+  else
+    echo "Error: ${zip_file} not found"
+    return 1
+  fi
+}
+
+setup_android_envs() {
+  if [ ! -z $ANDROID_HOME ]; then
+    if [ ! -z $ANDROID_SDK_ROOT ]; then
+        export ANDROID_SDK_ROOT=$ANDROID_HOME
+    fi
+    export PATH=$ANDROID_HOME/emulator:$PATH
+    export PATH=$ANDROID_HOME/platform-tools:$PATH
+    export PATH=$ANDROID_HOME/platforms:$PATH
+    export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+  fi
+}
+
+# docker
+docker_enter() {
+  docker exec -it $1 bash;
+}
+
+docker_enter_bash() {
+  docker exec -it $1 bash;
+}
+
+docker_enter_sh() {
+  docker exec -it $1 sh;
+}
+
+# brew
+enable_ustc_brew() {
+  export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
+  export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+  export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+  export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+}
