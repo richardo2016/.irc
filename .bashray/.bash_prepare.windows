@@ -1,0 +1,3 @@
+if [[ "$RAY_HOST_OS" == "Windows" ]]; then
+  alias open="start \"\"";
+fi
