@@ -3,6 +3,7 @@
 . ~/.bashray/.bash_fns --source-only
 . ~/.bashray/.bash_fns_proxies --source-only
 . ~/.bashray/.bash_fns_video --source-only
+. ~/.bashray/.bash_shared_presets --source-only
 
 # switch back to bash in some host
 case ${RAY_HOST_OS} in

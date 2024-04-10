@@ -27,6 +27,21 @@ get_envs() {
 		powerpc) RAY_HOST_ARCH="ppc";;
 		ppc64) RAY_HOST_ARCH="ppc64";;
 	esac
+  
+  case $RAY_HOST_OS in
+    Windows)
+      # replace :/ to / in $SYSTEMDRIVE
+      export ray_system_drive_lower=$(echo ${SYSTEMDRIVE//\:/} | tr '[:upper:]' '[:lower:]');
+      export RAY_SHARED_DIR=/$ray_system_drive_lower/Users/Public;
+      ;;
+    Darwin)
+      # see https://support.apple.com/guide/mac-help/share-files-with-others-who-use-your-mac-mchlp1122/mac
+      export RAY_SHARED_DIR=$HOME/Public;
+      ;;
+    Linux)
+      export RAY_SHARED_DIR=$HOME/Public;
+      ;;
+  esac
 }
 
 get_envs;
