@@ -96,6 +96,9 @@ export PATH="$PATH:$HOME/.composer/vendor/bin"
 # # GRADLE
 # export GRADLE_HOME=~/env/gradle-4.0.1;
 # export PATH=$PATH:$GRADLE_HOME/bin
+if [ -z $ANDROID_HOME ] && [ -f $RAY_SHARED_DIR/Android/Sdk/platform-tools/adb ]; then
+  export ANDROID_HOME=$RAY_SHARED_DIR/Android/Sdk
+fi
 
 # rbenv, @see https://github.com/rbenv/rbenv
 if [ -e rbenv ] || [ -e /usr/local/bin/rbenv ]; then
