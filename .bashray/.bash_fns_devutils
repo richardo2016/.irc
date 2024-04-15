@@ -1,5 +1,5 @@
 # zip
-install_zip() {
+install_from_zip() {
   if [ -z "$1" ]; then
     echo "Usage: install_zip <zip_file> [install_dir]"
     return 1

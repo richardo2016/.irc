@@ -21,3 +21,19 @@ windows_install_make() {
     echo "make already installed in $RAY_SHARED_MINGW64_DIR";
   fi
 }
+
+windows_install_zip() {
+  local zip_url=https://jaist.dl.sourceforge.net/project/gnuwin32/zip/3.0/zip-3.0-bin.zip;
+
+  mkdir -p $RAY_SHARED_MINGW64_DIR;
+
+  if [ ! -e $RAY_SHARED_MINGW64_DIR/bin/zip ] || [ $1 == "--force" ]; then
+    rm -f $TMPDIR/zip-3.0-bin.zip;
+    curl -sfL $zip_url -o $TMPDIR/zip-3.0-bin.zip
+    unzip $TMPDIR/zip-3.0-bin.zip -d $RAY_SHARED_MINGW64_DIR;
+
+    echo "Installed $RAY_SHARED_MINGW64_DIR/bin/zip";
+  else
+    echo "zip already installed in $RAY_SHARED_MINGW64_DIR";
+  fi
+}
