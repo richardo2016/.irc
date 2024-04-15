@@ -3,16 +3,18 @@ case $RAY_HOST_OS in
   Windows)
     # replace :/ to / in $SYSTEMDRIVE
     export ray_system_drive_lower=$(echo ${SYSTEMDRIVE//\:/} | tr '[:upper:]' '[:lower:]');
+
     export RAY_SHARED_DIR=/$ray_system_drive_lower/Users/Public;
+    export RAY_SHARED_USR_BIN_DIR=$RAY_SHARED_DIR/usr/bin;
     export RAY_SHARED_MINGW64_DIR=$RAY_SHARED_DIR/mingw64;
     export PATH=$RAY_SHARED_MINGW64_DIR/bin:$PATH;
+
+    export RAY_MY_BIN_DIR=$USERPROFILE/bin;
     ;;
-  Darwin)
+  Darwin|Linux)
     # see https://support.apple.com/guide/mac-help/share-files-with-others-who-use-your-mac-mchlp1122/mac
     export RAY_SHARED_DIR=$HOME/Public;
-    ;;
-  Linux)
-    export RAY_SHARED_DIR=$HOME/Public;
+    export RAY_MY_BIN_DIR=$HOME/bin;
     ;;
 esac
 

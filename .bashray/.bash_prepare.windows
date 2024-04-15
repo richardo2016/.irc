@@ -22,18 +22,14 @@ windows_install_make() {
   fi
 }
 
+# see https://ranxing.wordpress.com/2016/12/13/add-zip-into-git-bash-on-windows/
+# https://stackoverflow.com/a/55749636
+# https://stackoverflow.com/a/54301375
 windows_install_zip() {
-  local zip_url=https://jaist.dl.sourceforge.net/project/gnuwin32/zip/3.0/zip-3.0-bin.zip;
-
-  mkdir -p $RAY_SHARED_MINGW64_DIR;
-
-  if [ ! -e $RAY_SHARED_MINGW64_DIR/bin/zip ] || [ $1 == "--force" ]; then
-    rm -f $TMPDIR/zip-3.0-bin.zip;
-    curl -sfL $zip_url -o $TMPDIR/zip-3.0-bin.zip
-    unzip $TMPDIR/zip-3.0-bin.zip -d $RAY_SHARED_MINGW64_DIR;
-
-    echo "Installed $RAY_SHARED_MINGW64_DIR/bin/zip";
+  if [ ! -f $RAY_MY_BIN_DIR/zip ]; then
+    echo "zip.exe already installed in $RAY_MY_BIN_DIR";
   else
-    echo "zip already installed in $RAY_SHARED_MINGW64_DIR";
+    curl -sfL https://raw.githubusercontent.com/richardo2016/.irc_binaries/main/zip.exe -o $RAY_MY_BIN_DIR/zip;
+    echo "Installed $RAY_MY_BIN_DIR/zip";
   fi
 }
