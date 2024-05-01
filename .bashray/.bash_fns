@@ -67,7 +67,7 @@ use_brew_openssl() {
 
 ## nodejs setup function
 install_nvm() {
-  if [ "$RAY_HOST_OS" === "Windows" ]; then
+  if [ "$RAY_HOST_OS" == "Windows" ]; then
     install_nvm_windows;
   else
     install_nvm_unix;
