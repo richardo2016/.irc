@@ -77,7 +77,7 @@ case ${RAY_HOST_OS} in
       tar -xzf $local_tar_pos -C $RAY_SHARED_JDKS_DIR
     }
 
-    if [ -z $JAVA_HOME && -f $RAY_CURRENT_OPENJDK_DIR/Contents/Home/bin/java ]; then
+    if [ -z $JAVA_HOME ] && [ -f $RAY_CURRENT_OPENJDK_DIR/Contents/Home/bin/java ]; then
       export JAVA_HOME=$RAY_CURRENT_OPENJDK_DIR/Contents/Home
       export PATH=$JAVA_HOME/bin:$PATH
     fi
