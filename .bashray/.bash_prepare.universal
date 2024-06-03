@@ -1,32 +1,3 @@
-# shared/public directory
-case $RAY_HOST_OS in
-  Windows)
-    # replace :/ to / in $SYSTEMDRIVE
-    export ray_system_drive_lower=$(echo ${SYSTEMDRIVE//\:/} | tr '[:upper:]' '[:lower:]');
-
-    if [ ! -z $USERNAME ]; then
-      export RAY_USERNAME=$USERNAME;
-    else
-      export RAY_USERNAME=$(basename $USERPROFILE);
-    fi
-    export RAY_HOME=/$ray_system_drive_lower/Users/$RAY_USERNAME;
-    export RAY_SHARED_HOME=/$ray_system_drive_lower/Users/Public;
-    export RAY_SHARED_USR_BIN_DIR=$RAY_SHARED_HOME/usr/bin;
-    export RAY_SHARED_MINGW64_DIR=$RAY_SHARED_HOME/mingw64;
-    export PATH=$RAY_SHARED_MINGW64_DIR/bin:$PATH;
-
-    export RAY_MY_BIN_DIR=$RAY_HOME/bin;
-    ;;
-  Darwin|Linux)
-    export RAY_HOME=$HOME;
-    # see https://support.apple.com/guide/mac-help/share-files-with-others-who-use-your-mac-mchlp1122/mac
-    # export RAY_SHARED_HOME=$HOME/Public;
-    ray_home_parent=$(dirname $RAY_HOME);
-    export RAY_SHARED_HOME=$ray_home_parent/Shared;
-    export RAY_MY_BIN_DIR=$HOME/bin;
-    ;;
-esac
-
 # nodejs
 enable_node_mirrors() {
   export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
@@ -110,6 +81,8 @@ export PATH="$PATH:$HOME/.composer/vendor/bin"
 if [ $RAY_HOST_OS == "Darwin" ]; then
   if [ -f $RAY_SHARED_HOME/Library/Android/sdk/platform-tools/adb ]; then
     export ANDROID_HOME=$RAY_SHARED_HOME/Library/Android/sdk
+    export PATH=$PATH:$ANDROID_HOME/emulator
+    export PATH=$PATH:$ANDROID_HOME/platform-tools
   fi
 fi
 
