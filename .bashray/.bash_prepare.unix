@@ -2,12 +2,16 @@
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
 
 # brew on darwin
-if [ $RAY_HOST_OS = "Darwin" ]; then
+darwin_setup_brew() {
+  if [ $RAY_HOST_OS != "Darwin" ]; then
+    return
+  fi
+
   if [ -f /usr/local/homebrew/bin/brew ]; then
     alias brewx64='arch -x86_64 /usr/local/homebrew/bin/brew'
     if [ $RAY_HOST_ARCH = "x64" ]; then
-      RAY_BREW_PREFIX=$(brewx64 --prefix);
-      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+      # local RAY_BREW_PREFIX=$(arch -x86_64 /usr/local/homebrew/bin/brew --prefix);
+      eval $($(arch -x86_64 /usr/local/homebrew/bin/brew --prefix)/bin/brew shellenv);
       # If you come from bash you might have to change your $PATH.
       # need this for x86_64 brew
       # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -17,11 +21,12 @@ if [ $RAY_HOST_OS = "Darwin" ]; then
   if [ -f /opt/homebrew/bin/brew ]; then
     alias brewarm64='arch -arm64 /opt/homebrew/bin/brew'
     if [ $RAY_HOST_ARCH = "arm64" ]; then
-      RAY_BREW_PREFIX=$(brewarm64 --prefix);
-      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+      # local RAY_BREW_PREFIX=$(arch -arm64 /opt/homebrew/bin/brew --prefix);
+      eval $($(arch -arm64 /opt/homebrew/bin/brew --prefix)/bin/brew shellenv);
     fi
   fi
-fi
+}
+darwin_setup_brew;
 
 # golang's env
 case ${RAY_HOST_OS} in
