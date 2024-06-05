@@ -58,3 +58,33 @@ esac
 if [ -e "$PATH:$HOME/.rvm/bin" ]; then
   export PATH="$PATH:$HOME/.rvm/bin"
 fi
+
+# openjdks
+case ${RAY_HOST_OS} in
+  Darwin)
+    RAY_OPENJDK_VER_SLUG=11.0.2
+    RAY_CURRENT_OPENJDK_DIR=$RAY_SHARED_JDKS_DIR/jdk-${RAY_OPENJDK_VER_SLUG}.jdk
+
+    # see https://jdk.java.net/archive/
+    darwin_install_openjdk() {
+      mkdir -p $RAY_SHARED_JDKS_DIR;
+
+      local jdk_archive_url=https://download.java.net/java/GA/jdk11/9/GPL/openjdk-${RAY_OPENJDK_VER_SLUG}_osx-x64_bin.tar.gz
+      local jdk_archive_file=$(basename $jdk_archive_url)
+      local local_tar_pos=$RAY_SHARED_JDKS_DIR/$jdk_archive_file
+
+      rm -rf $RAY_CURRENT_OPENJDK_DIR;
+
+      if [ ! -f $local_tar_pos ]; then
+        curl -fL $jdk_archive_url -o $local_tar_pos
+      fi
+
+      tar -xzf $local_tar_pos -C $RAY_SHARED_JDKS_DIR
+    }
+
+    if [ -f $RAY_CURRENT_OPENJDK_DIR/Contents/Home/bin/java ]; then
+      export JAVA_HOME=$RAY_CURRENT_OPENJDK_DIR/Contents/Home
+      export PATH=$JAVA_HOME/bin:$PATH
+    fi
+    ;;
+esac
