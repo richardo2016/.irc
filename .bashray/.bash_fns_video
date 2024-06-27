@@ -10,3 +10,38 @@ mp4tomp3() {
     ffmpeg -i $1 -vn -b:a 320K $2
   fi
 }
+
+mpxtomp3_unloss() {
+  if [ -z $1 ]; then
+    echo "[mpxtomp3_unloss] input file required."
+    exit ;
+  elif [ ! -f $1 ]; then
+    echo "[mpxtomp3_unloss] file not exist: $1"
+    exit ;
+  fi
+
+  local source=$1
+  local target=$2
+  if [ -z $target ]; then
+    target="${source%.*}.mp3"
+  fi
+
+  if [ -f $target ]; then
+    echo "[mpxtomp3_unloss] file already exist, would you like to overwrite it? (y/n)"
+    read -r answer
+    if [ "$answer" != "y" ]; then
+      echo "[mpxtomp3_unloss] abort."
+      exit ;
+    fi
+  fi
+
+  echo "[mpxtomp3_unloss] will convert $source to $target";
+  ffmpeg -y -i $source -c:v copy -c:a libmp3lame -q:a 4 $target
+
+  echo "";
+  if [ $? -eq 0 ]; then
+    echo "[mpxtomp3_unloss] convert success."
+  else
+    echo "[mpxtomp3_unloss] convert failed."
+  fi
+}
