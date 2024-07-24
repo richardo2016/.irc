@@ -50,10 +50,10 @@ setup_node_env_from_nvm(){
       ;;
     Darwin|Linux)
       export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-      if [ -e "nvm" ]; then
+      [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"  # This loads nvm
+      if [ -d "$NVM_DIR/.git" ]; then
         export NODE_PATH="$HOME/.nvm/versions/node/$(nvm version)/lib"
-        export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm --version)/bin"
+        export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm version)/bin"
         export PATH="$PATH:$NODE_BIN_PATH"
       fi
       ;;
