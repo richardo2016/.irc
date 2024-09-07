@@ -120,3 +120,47 @@ fi
 if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
 fi
+
+install_fibjs() {
+  if [ -z $1 ]; then
+    echo "Usage: install_fibjs <version>"
+    return 1
+  fi
+
+  local FIBJS_VERSION=$1
+
+  case $RAY_HOST_OS in
+    Windows)
+      # windows x64: https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-windows-x64.exe
+      local fibjs_installer=https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-windows-${RAY_HOST_ARCH}.exe
+      echo "Downloading $fibjs_installer ..."
+
+      curl -sL $fibjs_installer -o $TMPDIR/installer-${FIBJS_VERSION}-windows-${RAY_HOST_ARCH}.exe
+      echo "Installing $TMPDIR/installer-${FIBJS_VERSION}-windows-${RAY_HOST_ARCH}.exe..."
+      $TMPDIR/installer-${FIBJS_VERSION}-windows-${RAY_HOST_ARCH}.exe
+      ;;
+    Linux)
+      # linux x64: https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-linux-x64.sh
+      local fibjs_installer=https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.sh
+      echo "Downloading $fibjs_installer ..."
+
+      curl -sL $fibjs_installer -o $TMPDIR/installer-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.sh
+      echo "Installing $TMPDIR/installer-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.sh..."
+      chmod +x $TMPDIR/installer-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.sh
+      $TMPDIR/installer-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.sh
+      ;;
+    Darwin)
+      # darwin arm64: https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-darwin-arm64.sh
+      local fibjs_installer=https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-darwin-${RAY_HOST_ARCH}.sh
+      echo "Downloading $fibjs_installer ..."
+
+      curl -sL $fibjs_installer -o $TMPDIR/installer-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.sh
+      echo "Installing $TMPDIR/installer-${FIBJS_VERSION}-darwin-${RAY_HOST_ARCH}.sh..."
+      chmod +x $TMPDIR/installer-${FIBJS_VERSION}-darwin-${RAY_HOST_ARCH}.sh
+      $TMPDIR/installer-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.sh
+      ;;
+    *)
+      echo "Unsupported OS: $RAY_HOST_OS"
+      ;;
+  esac
+}
