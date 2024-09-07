@@ -162,12 +162,13 @@ format_fibjs_os_slug_by_ver() {
 download_fibjs_binary() {
   # Usage:
   #   download_fibjs_binary --help
-  #   download_fibjs_binary <target> [--version=<version>] [--os=<os>] [--arch=<arch>] [--source=github|homesite]
+  #   download_fibjs_binary [target] [--version=<version>] [--os=<os>] [--arch=<arch>] [--source=github|homesite]
 
   # Example:
   #   download_fibjs_binary ~/bin/fibjs --version=v0.36.0 --os=$RAY_HOST_OS --arch=$RAY_HOST_ARCH --source=github
   local helpText=""$'\n'
-  helpText+="Usage: download_fibjs_binary <target> [--version=<version>] [--os=<os>] [--arch=<arch>]"$'\n'
+  helpText+="Usage: download_fibjs_binary [target] [--version=<version>] [--os=<os>] [--arch=<arch>]"$'\n'
+  helpText+="  [target]             The target directory to download fibjs binary. Default: ~/fibjs_bins"$'\n'
   helpText+=""$'\n'
   helpText+="Options:"$'\n'
   helpText+="  --version=<version>  The version of fibjs to download. Default: v0.36.0"$'\n'
@@ -175,7 +176,6 @@ download_fibjs_binary() {
   helpText+="  --arch=<arch>        The architecture of the target machine. Default: $RAY_HOST_ARCH"$'\n'
   helpText+="  --source=<source>    The source of the fibjs binary. Default: github"$'\n'
 
-  local FIBJS_TARGET_DIR=$1
   local FIBJS_VERSION="v0.36.0"
   local FIBJS_OS=$RAY_HOST_OS
   local FIBJS_ARCH=$RAY_HOST_ARCH
@@ -200,6 +200,8 @@ download_fibjs_binary() {
         ;;
     esac
   done
+  local FIBJS_TARGET_DIR=$1
+  [ -z $FIBJS_TARGET_DIR ] && FIBJS_TARGET_DIR="$HOME/fibjs_bins"
   # ensure started with 'v'
   [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
   if [ $CLI_SOURCE == "homesite" ]; then
@@ -208,7 +210,7 @@ download_fibjs_binary() {
     FIBJS_SOURCE_URL="https://github.com/fibjs/fibjs/releases/download"
   fi
 
-  if [ -z "$1" ]; then
+  if [ -z "$FIBJS_TARGET_DIR" ]; then
     echo "⚠️ Missing target directory."
     echo "$helpText";
     return 1
@@ -241,6 +243,7 @@ download_fibjs_binary() {
       echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
 
       curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}
+      chmod +x $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}
       # cp $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH} $FIBJS_TARGET_DIR/fibjs
       # echo "$FIBJS_TARGET_DIR/fibjs Ready"
       ;;
