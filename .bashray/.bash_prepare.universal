@@ -162,10 +162,10 @@ format_fibjs_os_slug_by_ver() {
 download_fibjs_binary() {
   # Usage:
   #   download_fibjs_binary --help
-  #   download_fibjs_binary <target> [--version=<version>] [--os=<os>] [--arch=<arch>]
+  #   download_fibjs_binary <target> [--version=<version>] [--os=<os>] [--arch=<arch>] [--source=github|homesite]
 
   # Example:
-  #   download_fibjs_binary ~/bin/fibjs --version=v0.36.0 --os=$RAY_HOST_OS --arch=$RAY_HOST_ARCH
+  #   download_fibjs_binary ~/bin/fibjs --version=v0.36.0 --os=$RAY_HOST_OS --arch=$RAY_HOST_ARCH --source=github
   local helpText=""$'\n'
   helpText+="Usage: download_fibjs_binary <target> [--version=<version>] [--os=<os>] [--arch=<arch>]"$'\n'
   helpText+=""$'\n'
@@ -173,11 +173,13 @@ download_fibjs_binary() {
   helpText+="  --version=<version>  The version of fibjs to download. Default: v0.36.0"$'\n'
   helpText+="  --os=<os>            The OS of the target machine. Default: $RAY_HOST_OS"$'\n'
   helpText+="  --arch=<arch>        The architecture of the target machine. Default: $RAY_HOST_ARCH"$'\n'
+  helpText+="  --source=<source>    The source of the fibjs binary. Default: github"$'\n'
 
   local FIBJS_TARGET_DIR=$1
   local FIBJS_VERSION="v0.36.0"
   local FIBJS_OS=$RAY_HOST_OS
   local FIBJS_ARCH=$RAY_HOST_ARCH
+  local CLI_SOURCE="github"
 
   for arg in "$@"; do
     case $arg in
@@ -194,10 +196,17 @@ download_fibjs_binary() {
         ;;
       --arch=*|-a=*) FIBJS_ARCH="${arg#*=}"; shift;
         ;;
+      --source=*|-s=*) CLI_SOURCE="${arg#*=}"; shift;
+        ;;
     esac
   done
   # ensure started with 'v'
   [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
+  if [ $CLI_SOURCE == "homesite" ]; then
+    FIBJS_SOURCE_URL="http://fibjs.org/dist"
+  else
+    FIBJS_SOURCE_URL="https://github.com/fibjs/fibjs/releases/download"
+  fi
 
   if [ -z "$1" ]; then
     echo "⚠️ Missing target directory."
@@ -220,7 +229,7 @@ download_fibjs_binary() {
 
   case ${FIBJS_OS^} in
     Windows)
-      local fibjs_binary="https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}.exe"
+      local fibjs_binary="${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}.exe"
       echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
 
       curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}.exe
@@ -228,7 +237,7 @@ download_fibjs_binary() {
       # echo "$FIBJS_TARGET_DIR/fibjs.exe Ready"
       ;;
     Linux|Darwin)
-      local fibjs_binary="https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}"
+      local fibjs_binary="${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}"
       echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
 
       curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}
@@ -244,20 +253,22 @@ download_fibjs_binary() {
 install_fibjs() {
   # Usage:
   #   install_fibjs --help
-  #   install_fibjs [version] [--arch=<arch>]
+  #   install_fibjs [version] [--arch=<arch>] [--source=github|homesite]
 
   # Example:
-  #   install_fibjs v0.36.0 --arch=$RAY_HOST_ARCH
+  #   install_fibjs v0.36.0 --arch=$RAY_HOST_ARCH --source=github
   local helpText=""$'\n'
   helpText+="Usage: install_fibjs [version] [--arch=<arch>]"$'\n'
   helpText+=""$'\n'
   helpText+="Options:"$'\n'
   helpText+="  --version=<version>  The version of fibjs to download. Default: v0.36.0"$'\n'
   helpText+="  --arch=<arch>        The architecture of the target machine. Default: $RAY_HOST_ARCH"$'\n'
+  helpText+="  --source=<source>    The source of the fibjs binary. Default: github"$'\n'
 
   local FIBJS_VERSION="v0.36.0"
   [ ! -z "$1" ] && FIBJS_VERSION=$1;
   local FIBJS_ARCH=$RAY_HOST_ARCH
+  local CLI_SOURCE="github"
 
   for arg in "$@"; do
     case $arg in
@@ -272,10 +283,17 @@ install_fibjs() {
         ;;
       --arch=*|-a=*) FIBJS_ARCH="${arg#*=}"; shift
         ;;
+      --source=*|-s=*) CLI_SOURCE="${arg#*=}"; shift;
+        ;;
     esac
   done
   # ensure started with 'v'
   [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
+  if [ $CLI_SOURCE == "homesite" ]; then
+    FIBJS_SOURCE_URL="http://fibjs.org/dist"
+  else
+    FIBJS_SOURCE_URL="https://github.com/fibjs/fibjs/releases/download"
+  fi
 
   format_fibjs_os_slug_by_ver $FIBJS_VERSION $FIBJS_OS
   local os_slug=${fibjs_os_slugs[$?]}
@@ -284,7 +302,7 @@ install_fibjs() {
 
   case $RAY_HOST_OS in
     Windows)
-      local fibjs_installer="https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}.exe"
+      local fibjs_installer="${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}.exe"
       echo "Downloading $fibjs_installer ..."
       curl -sL $fibjs_installer -o $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${RAY_HOST_ARCH}.exe
 
@@ -292,7 +310,7 @@ install_fibjs() {
       $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${RAY_HOST_ARCH}.exe
       ;;
     Linux|Darwin)
-      local fibjs_installer=https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-${os_slug}-${RAY_HOST_ARCH}.sh
+      local fibjs_installer=${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-${os_slug}-${RAY_HOST_ARCH}.sh
       echo "Downloading $fibjs_installer ..."
       curl -sL $fibjs_installer -o $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${RAY_HOST_ARCH}.sh
 
