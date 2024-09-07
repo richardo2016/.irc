@@ -121,6 +121,69 @@ if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
 fi
 
+download_fibjs_binary() {
+  if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: download_fibjs_binary <version> <target>"
+    return 1
+  fi
+
+  local FIBJS_VERSION=$1
+  local FIBJS_TARGET_DIR=$2
+
+  if [ -e $FIBJS_TARGET_DIR ] && [ -f $FIBJS_TARGET_DIR ]; then
+    echo "$FIBJS_TARGET_DIR file already exists."
+    return 1
+  elif [ ! -d $FIBJS_TARGET_DIR ]; then
+    echo "Creating $FIBJS_TARGET_DIR ..."
+    mkdir -p $FIBJS_TARGET_DIR
+  fi
+
+  case $RAY_HOST_OS in
+    Windows)
+      local fibjs_binarys=(
+        "https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-windows-${RAY_HOST_ARCH}.exe"
+        "https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-win32-${RAY_HOST_ARCH}.exe"
+      )
+
+      # unprefix "v" from version
+      FIBJS_VERSION_SEMVER=${FIBJS_VERSION#"v"}
+      echo "FIBJS_VERSION_SEMVER: $FIBJS_VERSION_SEMVER"
+      vercomp $FIBJS_VERSION_SEMVER "0.36.0"
+      case $? in
+        # '<='
+        0|2) local fibjs_binary=${fibjs_binarys[0]} ;;
+        # '>'
+        1) local fibjs_binary=${fibjs_binarys[1]} ;;
+      esac
+
+      echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
+
+      curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-windows-${RAY_HOST_ARCH}.exe
+      cp $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-windows-${RAY_HOST_ARCH}.exe $FIBJS_TARGET_DIR/fibjs.exe
+      echo "$FIBJS_TARGET_DIR/fibjs.exe Ready"
+      ;;
+    Linux)
+      local fibjs_binary=https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}.exe
+      echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
+
+      curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH}
+      cp $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-linux-${RAY_HOST_ARCH} $FIBJS_TARGET_DIR/fibjs
+      echo "$FIBJS_TARGET_DIR/fibjs Ready"
+      ;;
+    Darwin)
+      local fibjs_binary=https://github.com/fibjs/fibjs/releases/download/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-darwin-${RAY_HOST_ARCH}.exe
+      echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
+
+      curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-darwin-${RAY_HOST_ARCH}
+      cp $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-darwin-${RAY_HOST_ARCH} $FIBJS_TARGET_DIR/fibjs
+      echo "$FIBJS_TARGET_DIR/fibjs Ready"
+      ;;
+    *)
+      echo "Unsupported OS: $RAY_HOST_OS"
+      ;;
+  esac
+}
+
 install_fibjs() {
   if [ -z $1 ]; then
     echo "Usage: install_fibjs <version>"
