@@ -196,10 +196,11 @@ download_fibjs_binary() {
         ;;
     esac
   done
-  [ ! $FIBJS_VERSION == v* ] && FIBJS_VERSION="v$FIBJS_VERSION";
+  # ensure started with 'v'
+  [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
 
   if [ -z "$1" ]; then
-    echo "Missing target directory."
+    echo "⚠️ Missing target directory."
     echo "$helpText";
     return 1
   fi
@@ -267,14 +268,14 @@ install_fibjs() {
       --version=*|-v=*)
         FIBJS_VERSION="${arg#*=}";
         # ensure started with 'v'
-        [ ! $FIBJS_VERSION == v* ] && FIBJS_VERSION="v$FIBJS_VERSION";
         shift;
         ;;
       --arch=*|-a=*) FIBJS_ARCH="${arg#*=}"; shift
         ;;
     esac
   done
-  [ ! $FIBJS_VERSION == v* ] && FIBJS_VERSION="v$FIBJS_VERSION";
+  # ensure started with 'v'
+  [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
 
   format_fibjs_os_slug_by_ver $FIBJS_VERSION $FIBJS_OS
   local os_slug=${fibjs_os_slugs[$?]}
