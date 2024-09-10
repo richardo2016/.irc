@@ -121,7 +121,7 @@ if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
 fi
 
-fibjs_os_slugs=("linux" "darwin" "windows" "win32")
+fibjs_os_slugs=("linux" "darwin" "win32" "windows")
 format_fibjs_os_slug_by_ver() {
   # # lower case
   local FIBJS_OS=$2
@@ -141,13 +141,13 @@ format_fibjs_os_slug_by_ver() {
       # unprefix "v" from version
       local FIBJS_VERSION_SEMVER=${FIBJS_VERSION#"v"}
       # echo "FIBJS_VERSION_SEMVER: $FIBJS_VERSION_SEMVER"
-      vercomp $FIBJS_VERSION_SEMVER "0.36.0"
+      vercomp $FIBJS_VERSION_SEMVER "0.37.0"
       case $? in
-        # '<='
-        0|2) local slug_idx=2
+        # '>='
+        1|0) local slug_idx=2
         ;;
-        # '>'
-        1) local slug_idx=3
+        # '<'
+        2) local slug_idx=3
         ;;
       esac
       ;;
@@ -181,6 +181,11 @@ download_fibjs_binary() {
   local FIBJS_ARCH=$RAY_HOST_ARCH
   local CLI_SOURCE="github"
 
+  # if 1st is not started with '-', then it's the target directory
+  if [[ ! $1 == -* ]]; then
+    local FIBJS_TARGET_DIR=$1; shift;
+  fi
+
   for arg in "$@"; do
     case $arg in
       --help|-h)
@@ -198,9 +203,11 @@ download_fibjs_binary() {
         ;;
       --source=*|-s=*) CLI_SOURCE="${arg#*=}"; shift;
         ;;
+      *)
+        FIBJS_TARGET_DIR=$arg; shift;
+        ;;
     esac
   done
-  local FIBJS_TARGET_DIR=$1
   [ -z $FIBJS_TARGET_DIR ] && FIBJS_TARGET_DIR="$HOME/fibjs_bins"
   # ensure started with 'v'
   [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
