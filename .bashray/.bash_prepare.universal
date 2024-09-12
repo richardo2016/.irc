@@ -294,7 +294,14 @@ download_fibjs_binary() {
   # # leave here for debugging
   # echo "os_slug: $os_slug"
 
-  case ${FIBJS_OS^} in
+  # upper case first letter
+  # for bash >= 4
+  if [ ${BASH_VERSINFO[0]} -ge 4 ]; then
+    FIBJS_OS=$(echo ${FIBJS_OS^})
+  else
+    FIBJS_OS="$(tr '[:lower:]' '[:upper:]' <<< ${FIBJS_OS:0:1})${FIBJS_OS:1}"
+  fi
+  case ${FIBJS_OS} in
     Windows)
       local fibjs_binary="${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug}.exe"
       echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
