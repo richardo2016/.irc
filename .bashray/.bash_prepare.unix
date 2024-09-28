@@ -88,3 +88,61 @@ case ${RAY_HOST_OS} in
     fi
     ;;
 esac
+
+if [ "$RAY_HOST_OS" == "Linux" ];
+  # @see https://rustdesk.com/docs/zh-cn/self-host/rustdesk-server-oss/install/
+  setup_rustdesk_server() {
+    case ${RAY_HOST_ARCH} in
+      x86) local server_arch="i386" ;;
+      x64) local server_arch="amd64" ;;
+      armv6) local server_arch="arm" ;;
+      arm) local server_arch="arm" ;;
+      arm64) local server_arch="arm64" ;;
+      *)
+        echo "[setup_rustdesk_server] unsupported arch: $RAY_HOST_ARCH";
+        return;
+        ;;
+    esac
+    mkdir -p ~/.rustdesk;
+
+    # hbbr
+    if [ -f /usr/bin/hbbr ]; then
+      local deb_download_url=https://github.com/rustdesk/rustdesk-server/releases/download/1.1.11-1/rustdesk-server-hbbr_1.1.11-1_amd64.deb;
+      # downlaod to ~/.rustdesk/
+      curl -fL $deb_download_url -o ~/.rustdesk/rustdesk-server-hbbr_1.1.11-1_amd64.deb;
+
+      sudo apt-get install -y ~/.rustdesk/rustdesk-server-hbbr_1.1.11-1_amd64.deb;
+      pm2 start hbbr;
+    fi
+
+    # hbbs
+    if [ -f /usr/bin/hbbs ]; then
+      local deb_download_url=https://github.com/rustdesk/rustdesk-server/releases/download/1.1.11-1/rustdesk-server-hbbs_1.1.11-1_amd64.deb;
+      # downlaod to ~/.rustdesk/
+      curl -fL $deb_download_url -o ~/.rustdesk/rustdesk-server-hbbs_1.1.11-1_amd64.deb;
+
+      sudo apt-get install -y ~/.rustdesk/rustdesk-server-hbbs_1.1.11-1_amd64.deb;
+      pm2 start hbbs;
+    fi
+  }
+
+  setup_rustdesk_ports() {
+    # use firewall-cmd to add port:
+    # TCP(21115, 21116, 21117, 21118, 21119)
+    # UDP(21116)
+    local tcp_ports=(21115 21116 21117 21118 21119)
+    for port in ${tcp_ports[@]}; do
+      sudo firewall-cmd --zone=public --add-port=$port/tcp --permanent
+    done
+
+    local udp_ports=(21116)
+    for port in ${udp_ports[@]}; do
+      sudo firewall-cmd --zone=public --add-port=$port/udp --permanent
+    done
+
+    # reload
+    sudo firewall-cmd --reload
+    # see added ports
+    sudo firewall-cmd --list-ports
+  }
+fi
