@@ -10,3 +10,21 @@ mp4tomp3() {
     ffmpeg -i $1 -vn -b:a 320K $2
   fi
 }
+
+mxxtoflac() {
+  if [ -z $1 ]; then
+    echo "input file required."
+    # exit ;
+  elif [ ! -f $1 ]; then
+    echo "file not exist: $1"
+    # exit ;
+  else
+    input_file=$1
+    output_file=$2
+    if [ -z $output_file ]; then
+      output_file="${input_file%.*}.flac"
+    fi
+    echo "[mpx2flac] will convert $input_file to $output_file";
+    ffmpeg -i $input_file -vn -acodec flac $output_file
+  fi
+}
