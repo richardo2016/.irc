@@ -1,3 +1,28 @@
+vercomp () {
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if ((10#${ver1[i]:=0} > 10#${ver2[i]:=0}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+}
+
 reload_bash_session() {
   if [ "$1" = "--force" ]; then
     recreate_bash_session;
@@ -331,3 +356,9 @@ check_acme() {
   fi
 }
 check_acme;
+
+proxy2localclash () {
+  export http_proxy=http://127.0.0.1:7890;
+  export https_proxy=http://127.0.0.1:7890;
+  export all_proxy=http://127.0.0.1:7890;
+}

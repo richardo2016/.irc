@@ -2,12 +2,16 @@
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
 
 # brew on darwin
-if [ $RAY_HOST_OS = "Darwin" ]; then
+darwin_setup_brew() {
+  if [ $RAY_HOST_OS != "Darwin" ]; then
+    return
+  fi
+
   if [ -f /usr/local/homebrew/bin/brew ]; then
     alias brewx64='arch -x86_64 /usr/local/homebrew/bin/brew'
     if [ $RAY_HOST_ARCH = "x64" ]; then
-      RAY_BREW_PREFIX=$(brewx64 --prefix);
-      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+      # local RAY_BREW_PREFIX=$(arch -x86_64 /usr/local/homebrew/bin/brew --prefix);
+      eval $($(arch -x86_64 /usr/local/homebrew/bin/brew --prefix)/bin/brew shellenv);
       # If you come from bash you might have to change your $PATH.
       # need this for x86_64 brew
       # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -17,11 +21,12 @@ if [ $RAY_HOST_OS = "Darwin" ]; then
   if [ -f /opt/homebrew/bin/brew ]; then
     alias brewarm64='arch -arm64 /opt/homebrew/bin/brew'
     if [ $RAY_HOST_ARCH = "arm64" ]; then
-      RAY_BREW_PREFIX=$(brewarm64 --prefix);
-      eval $(${RAY_BREW_PREFIX}/bin/brew shellenv);
+      # local RAY_BREW_PREFIX=$(arch -arm64 /opt/homebrew/bin/brew --prefix);
+      eval $($(arch -arm64 /opt/homebrew/bin/brew --prefix)/bin/brew shellenv);
     fi
   fi
-fi
+}
+darwin_setup_brew;
 
 # golang's env
 case ${RAY_HOST_OS} in
@@ -53,3 +58,33 @@ esac
 if [ -e "$PATH:$HOME/.rvm/bin" ]; then
   export PATH="$PATH:$HOME/.rvm/bin"
 fi
+
+# openjdks
+case ${RAY_HOST_OS} in
+  Darwin)
+    RAY_OPENJDK_VER_SLUG=11.0.2
+    RAY_CURRENT_OPENJDK_DIR=$RAY_SHARED_JDKS_DIR/jdk-${RAY_OPENJDK_VER_SLUG}.jdk
+
+    # see https://jdk.java.net/archive/
+    darwin_install_openjdk() {
+      mkdir -p $RAY_SHARED_JDKS_DIR;
+
+      local jdk_archive_url=https://download.java.net/java/GA/jdk11/9/GPL/openjdk-${RAY_OPENJDK_VER_SLUG}_osx-x64_bin.tar.gz
+      local jdk_archive_file=$(basename $jdk_archive_url)
+      local local_tar_pos=$RAY_SHARED_JDKS_DIR/$jdk_archive_file
+
+      rm -rf $RAY_CURRENT_OPENJDK_DIR;
+
+      if [ ! -f $local_tar_pos ]; then
+        curl -fL $jdk_archive_url -o $local_tar_pos
+      fi
+
+      tar -xzf $local_tar_pos -C $RAY_SHARED_JDKS_DIR
+    }
+
+    if [ -f $RAY_CURRENT_OPENJDK_DIR/Contents/Home/bin/java ]; then
+      export JAVA_HOME=$RAY_CURRENT_OPENJDK_DIR/Contents/Home
+      export PATH=$JAVA_HOME/bin:$PATH
+    fi
+    ;;
+esac

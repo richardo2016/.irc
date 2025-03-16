@@ -1,32 +1,3 @@
-# shared/public directory
-case $RAY_HOST_OS in
-  Windows)
-    # replace :/ to / in $SYSTEMDRIVE
-    export ray_system_drive_lower=$(echo ${SYSTEMDRIVE//\:/} | tr '[:upper:]' '[:lower:]');
-
-    if [ ! -z $USERNAME ]; then
-      export RAY_USERNAME=$USERNAME;
-    else
-      export RAY_USERNAME=$(basename $USERPROFILE);
-    fi
-    export RAY_HOME=/$ray_system_drive_lower/Users/$RAY_USERNAME;
-    export RAY_SHARED_HOME=/$ray_system_drive_lower/Users/Public;
-    export RAY_SHARED_USR_BIN_DIR=$RAY_SHARED_HOME/usr/bin;
-    export RAY_SHARED_MINGW64_DIR=$RAY_SHARED_HOME/mingw64;
-    export PATH=$RAY_SHARED_MINGW64_DIR/bin:$PATH;
-
-    export RAY_MY_BIN_DIR=$RAY_HOME/bin;
-    ;;
-  Darwin|Linux)
-    export RAY_HOME=$HOME;
-    # see https://support.apple.com/guide/mac-help/share-files-with-others-who-use-your-mac-mchlp1122/mac
-    # export RAY_SHARED_HOME=$HOME/Public;
-    ray_home_parent=$(dirname $RAY_HOME);
-    export RAY_SHARED_HOME=$ray_home_parent/Shared;
-    export RAY_MY_BIN_DIR=$HOME/bin;
-    ;;
-esac
-
 # nodejs
 enable_node_mirrors() {
   export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
@@ -79,10 +50,10 @@ setup_node_env_from_nvm(){
       ;;
     Darwin|Linux)
       export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-      if [ -e "nvm" ]; then
+      [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"  # This loads nvm
+      if [ -d "$NVM_DIR/.git" ]; then
         export NODE_PATH="$HOME/.nvm/versions/node/$(nvm version)/lib"
-        export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm --version)/bin"
+        export NODE_BIN_PATH="$HOME/.nvm/versions/node/$(nvm version)/bin"
         export PATH="$PATH:$NODE_BIN_PATH"
       fi
       ;;
@@ -110,6 +81,8 @@ export PATH="$PATH:$HOME/.composer/vendor/bin"
 if [ $RAY_HOST_OS == "Darwin" ]; then
   if [ -f $RAY_SHARED_HOME/Library/Android/sdk/platform-tools/adb ]; then
     export ANDROID_HOME=$RAY_SHARED_HOME/Library/Android/sdk
+    export PATH=$PATH:$ANDROID_HOME/emulator
+    export PATH=$PATH:$ANDROID_HOME/platform-tools
   fi
 fi
 
@@ -147,3 +120,283 @@ fi
 if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
 fi
+
+__if_ver_lt() {
+  local ver=${1#"v"}
+  local base_ver=${2#"v"}
+  # echo "FIBJS_VERSION_SEMVER: $FIBJS_VERSION_SEMVER"
+  vercomp $ver $base_ver
+
+  case $? in
+    # '>='
+    1|0) return 0;
+    ;;
+    # '<'
+    2) return 1;
+    ;;
+  esac
+}
+
+fibjs_os_slugs=("linux" "darwin" "win32" "windows")
+__format_fibjs_os_slug_by_ver() {
+  # # lower case
+  local FIBJS_OS=$2
+  [ -z $FIBJS_OS ] && FIBJS_OS=$RAY_HOST_OS
+  FIBJS_OS=$(echo $FIBJS_OS | tr '[:upper:]' '[:lower:]')
+
+  case $FIBJS_OS in
+    linux)
+      local os_slug_idx=0
+      ;;
+    darwin|macos)
+      local os_slug_idx=1
+      ;;
+    windows|win32)
+      local FIBJS_VERSION=$1
+
+      # unprefix "v" from version
+      local FIBJS_VERSION_SEMVER=${FIBJS_VERSION#"v"}
+      # echo "FIBJS_VERSION_SEMVER: $FIBJS_VERSION_SEMVER"
+      vercomp $FIBJS_VERSION_SEMVER "0.37.0"
+      case $? in
+        # '>='
+        1|0) local os_slug_idx=2
+        ;;
+        # '<'
+        2) local os_slug_idx=3
+        ;;
+      esac
+      ;;
+    *)
+      echo "[__format_fibjs_os_slug_by_ver] Unsupported OS: $FIBJS_OS"
+      ;;
+  esac
+
+  return $os_slug_idx;
+}
+
+fibjs_arch_slugs=(
+  # 0
+  "amd64" "x64"
+  # 2
+  "i386" "x86" "ia32"
+  # 5
+  "aarch64" "arm64"
+  # 7
+  "armv7l" "arm"
+)
+__format_fibjs_arch_slug_by_ver() {
+  # # lower case
+  local FIBJS_VER=$1
+  local FIBJS_ARCH=$(echo $2 | tr '[:upper:]' '[:lower:]')
+
+  __if_ver_lt $FIBJS_VER "0.37.0"
+  IS_LT_0370=$?
+
+  local arch_slug_idx=0
+  case $FIBJS_ARCH in
+    x64|amd64)
+      arch_slug_idx=0
+      ;;
+    x86|x86_64|i386)
+      [ $IS_LT_0370 -eq 1 ] && arch_slug_idx=3 || arch_slug_idx=4
+      ;;
+    arm64|aarch64)
+      arch_slug_idx=6
+      ;;
+    arm|armv7l)
+      arch_slug_idx=8
+      ;;
+    *)
+      echo "[__format_fibjs_os_slug_by_ver] Unsupported OS: $FIBJS_OS"
+      ;;
+  esac
+
+  return $arch_slug_idx;
+}
+
+download_fibjs_binary() {
+  # Usage:
+  #   download_fibjs_binary --help
+  #   download_fibjs_binary [target] [--version=<version>] [--os=<os>] [--arch=<arch>] [--source=github|homesite]
+
+  # Example:
+  #   download_fibjs_binary ~/bin/fibjs --version=v0.36.0 --os=$RAY_HOST_OS --arch=$RAY_HOST_ARCH --source=github
+  local helpText=""$'\n'
+  helpText+="Usage: download_fibjs_binary [target] [--version=<version>] [--os=<os>] [--arch=<arch>]"$'\n'
+  helpText+="  [target]             The target directory to download fibjs binary. Default: ~/fibjs_bins"$'\n'
+  helpText+=""$'\n'
+  helpText+="Options:"$'\n'
+  helpText+="  --version=<version>  The version of fibjs to download. Default: v0.36.0"$'\n'
+  helpText+="  --os=<os>            The OS of the target machine. Default: $RAY_HOST_OS"$'\n'
+  helpText+="  --arch=<arch>        The architecture of the target machine. Default: $RAY_HOST_ARCH"$'\n'
+  helpText+="  --source=<source>    The source of the fibjs binary. Default: github"$'\n'
+
+  local FIBJS_VERSION="v0.36.0"
+  local FIBJS_OS=$RAY_HOST_OS
+  local FIBJS_ARCH=$RAY_HOST_ARCH
+  local CLI_SOURCE="github"
+
+  # if 1st is not started with '-', then it's the target directory
+  if [[ ! $1 == -* ]]; then
+    local FIBJS_TARGET_DIR=$1; shift;
+  fi
+
+  for arg in "$@"; do
+    case $arg in
+      --help|-h)
+        echo "$helpText";
+        return 0
+        ;;
+      --version=*|-v=*)
+        FIBJS_VERSION="${arg#*=}";
+        # ensure started with 'v'
+        shift;
+        ;;
+      --os=*|-o=*) FIBJS_OS="${arg#*=}"; shift;
+        ;;
+      --arch=*|-a=*) FIBJS_ARCH="${arg#*=}"; shift;
+        ;;
+      --source=*|-s=*) CLI_SOURCE="${arg#*=}"; shift;
+        ;;
+      *)
+        FIBJS_TARGET_DIR=$arg; shift;
+        ;;
+    esac
+  done
+  [ -z $FIBJS_TARGET_DIR ] && FIBJS_TARGET_DIR="$HOME/fibjs_bins"
+  # ensure started with 'v'
+  [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
+  if [ $CLI_SOURCE == "homesite" ]; then
+    FIBJS_SOURCE_URL="http://fibjs.org/dist"
+  else
+    FIBJS_SOURCE_URL="https://github.com/fibjs/fibjs/releases/download"
+  fi
+
+  if [ -z "$FIBJS_TARGET_DIR" ]; then
+    echo "⚠️ Missing target directory."
+    echo "$helpText";
+    return 1
+  fi
+
+  if [ -e $FIBJS_TARGET_DIR ] && [ -f $FIBJS_TARGET_DIR ]; then
+    echo "$FIBJS_TARGET_DIR file already exists."
+    return 1
+  elif [ ! -d $FIBJS_TARGET_DIR ]; then
+    echo "Creating $FIBJS_TARGET_DIR ..."
+    mkdir -p $FIBJS_TARGET_DIR
+  fi
+
+  __format_fibjs_os_slug_by_ver $FIBJS_VERSION $FIBJS_OS
+  local os_slug=${fibjs_os_slugs[$?]};
+  __format_fibjs_arch_slug_by_ver $FIBJS_VERSION $FIBJS_ARCH
+  local arch_slug=${fibjs_arch_slugs[$?]};
+  # # leave here for debugging
+  # echo "os_slug: $os_slug"
+
+  # upper case first letter
+  # for bash >= 4
+  if [ ${BASH_VERSINFO[0]} -ge 4 ]; then
+    FIBJS_OS=$(echo ${FIBJS_OS^})
+  else
+    FIBJS_OS="$(tr '[:lower:]' '[:upper:]' <<< ${FIBJS_OS:0:1})${FIBJS_OS:1}"
+  fi
+  case ${FIBJS_OS} in
+    Windows)
+      local fibjs_binary="${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug}.exe"
+      echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
+
+      curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug}.exe
+      # cp $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug}.exe $FIBJS_TARGET_DIR/fibjs.exe
+      # echo "$FIBJS_TARGET_DIR/fibjs.exe Ready"
+      ;;
+    Linux|Darwin)
+      local fibjs_binary="${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug}"
+      echo "Downloading $fibjs_binary to $FIBJS_TARGET_DIR ..."
+
+      curl -L $fibjs_binary -o $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug}
+      chmod +x $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug}
+      # cp $FIBJS_TARGET_DIR/fibjs-${FIBJS_VERSION}-${os_slug}-${arch_slug} $FIBJS_TARGET_DIR/fibjs
+      # echo "$FIBJS_TARGET_DIR/fibjs Ready"
+      ;;
+    *)
+      echo "[download_fibjs_binary] Unsupported OS: $FIBJS_OS"
+      ;;
+  esac
+}
+
+install_fibjs() {
+  # Usage:
+  #   install_fibjs --help
+  #   install_fibjs [version] [--arch=<arch>] [--source=github|homesite]
+
+  # Example:
+  #   install_fibjs v0.36.0 --arch=$RAY_HOST_ARCH --source=github
+  local helpText=""$'\n'
+  helpText+="Usage: install_fibjs [version] [--arch=<arch>]"$'\n'
+  helpText+=""$'\n'
+  helpText+="Options:"$'\n'
+  helpText+="  --version=<version>  The version of fibjs to download. Default: v0.36.0"$'\n'
+  helpText+="  --arch=<arch>        The architecture of the target machine. Default: $RAY_HOST_ARCH"$'\n'
+  helpText+="  --source=<source>    The source of the fibjs binary. Default: github"$'\n'
+
+  local FIBJS_VERSION="v0.36.0"
+  [ ! -z "$1" ] && FIBJS_VERSION=$1;
+  local FIBJS_ARCH=$RAY_HOST_ARCH
+  local CLI_SOURCE="github"
+
+  for arg in "$@"; do
+    case $arg in
+      --help|-h)
+        echo "$helpText";
+        return 0
+      ;;
+      --version=*|-v=*)
+        FIBJS_VERSION="${arg#*=}";
+        # ensure started with 'v'
+        shift;
+        ;;
+      --arch=*|-a=*) FIBJS_ARCH="${arg#*=}"; shift
+        ;;
+      --source=*|-s=*) CLI_SOURCE="${arg#*=}"; shift;
+        ;;
+    esac
+  done
+  # ensure started with 'v'
+  [[ ! $FIBJS_VERSION == v* ]] && FIBJS_VERSION="v$FIBJS_VERSION";
+  if [ $CLI_SOURCE == "homesite" ]; then
+    FIBJS_SOURCE_URL="http://fibjs.org/dist"
+  else
+    FIBJS_SOURCE_URL="https://github.com/fibjs/fibjs/releases/download"
+  fi
+
+  __format_fibjs_os_slug_by_ver $FIBJS_VERSION $FIBJS_OS
+  local os_slug=${fibjs_os_slugs[$?]};
+  __format_fibjs_arch_slug_by_ver $FIBJS_VERSION $FIBJS_ARCH
+  local arch_slug=${fibjs_arch_slugs[$?]};
+  # # leave here for debugging
+  # echo "os_slug: $os_slug"
+
+  case $RAY_HOST_OS in
+    Windows)
+      local fibjs_installer="${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-${os_slug}-${FIBJS_ARCH}.exe"
+      echo "Downloading $fibjs_installer ..."
+      curl -sL $fibjs_installer -o $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.exe
+
+      echo "Installing $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.exe..."
+      $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.exe
+      ;;
+    Linux|Darwin)
+      local fibjs_installer=${FIBJS_SOURCE_URL}/${FIBJS_VERSION}/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.sh
+      echo "Downloading $fibjs_installer ..."
+      curl -sL $fibjs_installer -o $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.sh
+
+      echo "Installing $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.sh..."
+      chmod +x $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.sh
+      $TMPDIR/installer-${FIBJS_VERSION}-${os_slug}-${arch_slug}.sh
+      ;;
+    *)
+      echo "[install_fibjs] Unsupported OS: $RAY_HOST_OS"
+      ;;
+  esac
+}

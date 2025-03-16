@@ -52,3 +52,48 @@ enable_ustc_brew() {
   export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
   export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
 }
+
+android_shell_list_packages() {
+  adb shell pm list packages -f
+}
+
+android_pull_apk_from() {
+  if [ -z "$1" ]; then
+    echo "Usage: android_pull_apk_from <package_name>"
+    return 1
+  fi
+
+  local package_name=$1
+  local target_dir=${2:-.}
+  local apk_path=$(adb shell pm path $package_name | cut -d: -f2)
+  local apk_name=$(basename $apk_path)
+  local target_path=${target_dir}/${apk_name}
+
+  echo "target_path is $target_path"
+
+  adb pull $apk_path $target_path
+}
+
+android_dump_permissions() {
+  $ANDROID_HOME/build-tools/34.0.0/aapt d permissions $1
+}
+
+modify_git_author_cmd() {
+  echo "
+git filter-branch -f --env-filter '
+OLD_EMAIL=\"your-old-email@example.com\"
+CORRECT_NAME=\"Your Correct Name\"
+CORRECT_EMAIL=\"your-correct-email@example.com\"
+if [ \"\$GIT_COMMITTER_EMAIL\" = \"\$OLD_EMAIL\" ]
+then
+    export GIT_COMMITTER_NAME=\"\$CORRECT_NAME\"
+    export GIT_COMMITTER_EMAIL=\"\$CORRECT_EMAIL\"
+fi
+if [ \"\$GIT_AUTHOR_EMAIL\" = \"\$OLD_EMAIL\" ]
+then
+    export GIT_AUTHOR_NAME=\"\$CORRECT_NAME\"
+    export GIT_AUTHOR_EMAIL=\"\$CORRECT_EMAIL\"
+fi
+' --tag-name-filter cat -- --branches --tags
+"
+}

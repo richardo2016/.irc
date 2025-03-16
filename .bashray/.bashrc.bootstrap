@@ -4,6 +4,5 @@
 . ~/.bashray/.bash_fns --source-only
 . ~/.bashray/.bash_fns_video --source-only
 . ~/.bashray/.bash_fns_devutils --source-only
-. ~/.bashray/.bash_shared_presets --source-only
 
 . ~/.bashray/.bash_postpare --source-only
