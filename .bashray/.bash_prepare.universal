@@ -104,7 +104,9 @@ case ${RAY_HOST_OS} in
     ;;
   Darwin)
     VSCPATH="/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code"
+    VSCIPATH="/Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code"
     alias vsc=$VSCPATH
+    alias vsci=$VSCIPATH
     SUBLPATH="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
     alias subl=$SUBLPATH
     ;;
