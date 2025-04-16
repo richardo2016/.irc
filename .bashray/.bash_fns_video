@@ -28,3 +28,36 @@ mxxtoflac() {
     ffmpeg -i $input_file -vn -acodec flac $output_file
   fi
 }
+
+cut_video() {
+  local input=$1;
+  local from_time=$2;
+  local to_time=$3;
+
+  if [ -z "$input" ]; then
+    echo "input file required."
+    exit -1;
+  elif [ ! -f "$input" ]; then
+    echo "file not exist: $input"
+    exit -1;
+  fi
+
+  if [ -z "$from_time" ]; then
+    echo "from_time time required."
+    exit -1;
+  fi
+
+  local from_params="-ss $from_time"
+
+  if [ -z "$output" ]; then
+    local output="${input%.*}_cut.mp4"
+  fi
+
+  echo "[cut_video] will convert $input to $output";
+
+  if [ ! -z "$to" ]; then
+    local to_params="-to $to_time"
+  fi
+
+  ffmpeg -i "$input" $from_params $to_params -c copy "$output";
+}
