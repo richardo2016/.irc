@@ -32,7 +32,8 @@ mxxtoflac() {
 cut_video() {
   local input=$1;
   local from_time=$2;
-  local to_time=$3;
+  local time=$3;
+  local output=$4;
 
   if [ -z "$input" ]; then
     echo "input file required."
@@ -55,8 +56,8 @@ cut_video() {
 
   echo "[cut_video] will convert $input to $output";
 
-  if [ ! -z "$to" ]; then
-    local to_params="-to $to_time"
+  if [ ! -z "$time" ]; then
+    local to_params="-to $time"
   fi
 
   ffmpeg -i "$input" $from_params $to_params -c copy "$output";
